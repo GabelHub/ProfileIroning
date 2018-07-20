@@ -1,0 +1,153 @@
+#' Calculating the Profile Likelihood
+#'
+#' @param which.par Name of the parameter that a profile should be obtained for. If multiple profiles are supposed to be calculated, a vector can be passed along as well. Alternatively, supplying "all.par" calculates the profiles for all available parameters.
+#' @param par.names A vector containing the names and initial values for all available parameters.
+#' @param range A list containing the respective ranges for which the profile should be calculated.
+#' @param fit.fn A cost function. Has to take the complete parameter vector as an input (needs to be names \code{parms}) and must return the corresponding negative log-likelihood (-2LL, see Burnham and Anderson 2002).
+#' @param do.not.fit A character vector containing the names of the parameters that should not be fitted. Default to NULL.
+#' @param homedir The directory to which the results should be saved to.
+#' @param optim.runs The number of times that each model will be fitted by \code{\link{optim}}. Default to 5.
+#' @param random.borders The ranges from which the random initial parameter conditions for all \code{optim.runs} larger than one are sampled. Can be either given as a vector containing the relative deviations for all parameters or as a matrix containing in its first column the lower and in its second column the upper border values. Parameters are uniformly sampled based on \code{\link{runif}}. Default to 1 (100\% deviation of all parameters).
+#' @param refit If TRUE, previously fitted ranges will be fitted again and results will be overwritten according to the value set in \code{save.rel.diff}. Default to FALSE.
+#' @param save.rel.diff A numeric value indicating when to overwrite a pre-existing result. Default to 0.01, which means that results get overwritten only if an improvement larger than 1\% of the pre-existing value is made.
+#' @param con.tol The absolute convergence tolerance of each fitting run (see Details). Default is set to 0.1.
+#' @param control.optim Control parameters passed along to \code{optim}. For more details, see \code{\link{optim}}.
+#' @param future.off Logical. If TRUE, \code{\link{future}} will not be used to calculate the results. Default to FALSE.
+#' @param ... Additional parameters that can be passed along to \code{\link{future}} or \code{fit.fn}.
+#' @return A list containing the respective profile values for every specified parameter.
+#' @export
+#'
+#' @examples
+#' #create data with standard deviation of 1
+#' x.values <- 1:7
+#' y.values <-  9 * x.values^2 - exp(2 * x.values)
+#' sd.y.values <- rep(1,7)
+#'
+#' #define initial parameter values
+#' inits <- c(p1 = 3, p2 = 4, p3 = -2, p4 = 2, p5 = 0)
+#'
+#' #define cost function that returns the negative log-likelihood
+#' cost_function <- function(parms, x.vals, y.vals, sd.y){
+#'   # restrict the search range to -5 to +5
+#'   if(max(abs(parms)) > 5){
+#'     return(NA)
+#'   }
+#'   with(as.list(c(parms)), {
+#'     res <- p1*4 + p2*x.vals + p3^2*x.vals^2 + p4*sin(x.vals)  - exp(p5*x.vals)
+#'     diff <- sum((res - y.vals)^2/sd.y)
+#'   })
+#' }
+#'
+#' #perform model selection
+#' res <- create.profile(which.par = "all.par",
+#'                       par.names = inits,
+#'                       range = list(seq(0, 2, 0.1),
+#'                                  seq(0, 5, 1),
+#'                                  seq(2.9, 3.1, 0.01),
+#'                                  seq(0, 3, 0.1),
+#'                                  seq(1.999999, 2.000001, 0.0000001)),
+#'                       fit.fn = cost_function,
+#'                       optim.runs = 1,
+#'                       x.vals = x.values,
+#'                       y.vals = y.values,
+#'                       sd.y = sd.y.values)
+create.profile <- function(which.par, par.names, range, fit.fn, do.not.fit = NULL, homedir = getwd(), optim.runs = 5, random.borders = 1, refit = F, save.rel.diff = 0.01, con.tol = 0.1, control.optim = list(maxit = 1000), future.off = F, ...){
+  #create storage directories
+  create.directories(homedir = getwd())
+
+  #get all parameters
+  if(which.par == "all.par"){
+    index <- 1:length(par.names)
+    #check if non-fitted parameter is fitted
+    if(length(do.not.fit) > 0){
+      stop("One of the profile parameters is specified in the do.not.fit vector!")
+    }
+  }else{
+    index <- which(names(par.names) %in% which.par)
+    #check if non-fitted parameter is fitted
+    if(sum(is.element(names(do.not.fit), which.par) > 0)){
+      stop("One of the profile parameters is specified in the do.not.fit vector!")
+    }
+  }
+  overall.min <- Inf
+  for(i in 1:length(index)){
+    range.x <- range[[i]]
+    for(j in 1:length(range.x)){
+      if(refit == TRUE || file.exists(paste0(homedir, "/Profile-Results/Fits/",paste0(names(par.names)[index[i]], "_", range.x[j]), ".rds")) == FALSE){
+
+        nofit <- range.x[j]
+        names(nofit) <- names(par.names)[index[i]]
+        nofit <- c(nofit, do.not.fit)
+
+        if(future.off == TRUE){
+          point.profile(no.fit = nofit,
+                        parms = par.names,
+                        fit.fn = fit.fn,
+                        homedir = homedir,
+                        optim.runs = optim.runs,
+                        random.borders = random.borders,
+                        con.tol = con.tol,
+                        control.optim = control.optim,
+                        save.rel.diff = save.rel.diff,
+                        ...)
+        }else{
+          future::future(point.profile(no.fit = nofit,
+                                       parms = par.names,
+                                       fit.fn = fit.fn,
+                                       homedir = homedir,
+                                       optim.runs = optim.runs,
+                                       random.borders = random.borders,
+                                       con.tol = con.tol,
+                                       control.optim = control.optim,
+                                       save.rel.diff = save.rel.diff,
+                                       ...),
+                         label = paste0(names(par.names)[index[i]], "_", range.x[j]),
+                         ...)
+        }
+
+
+
+      }
+    }
+  }
+
+  #plot the outcome
+
+  nrows = sqrt(length(index))
+  ncols = ifelse(length(index) == 1, 1, ceiling(sqrt(length(index))))
+  all.res <- list()
+
+  for(i in 1:length(index)){
+    table.x <- as.data.frame(get.profile(which.par = names(par.names)[index[i]], range = range[[i]], homedir = homedir, wait = TRUE))
+    if(i == 1){
+      overall.min <- min(table.x[,1])
+    }else{
+      if(overall.min > min(table.x[,1])){
+        overall.min <- min(table.x[,1])
+      }
+    }
+    all.res[[i]] <- table.x
+    saveRDS(table.x, paste0(homedir, "/Profile-Results/Tables/", names(par.names)[index[i]], ".rds"))
+  }
+  names(all.res) <- names(par.names)[index]
+
+
+  par(mfrow = c(nrows, ncols))
+
+  for(i in 1:length(index)){
+    table.x <- all.res[[i]]
+
+    plot(table.x[, names(par.names)[index[i]]],
+         table.x$LL,
+         type = "l",
+         lwd = 3,
+         xlab = names(par.names)[index[i]],
+         ylab = "-2LL",
+         main = paste0("Profile likelihood of ", names(par.names)[index[i]]))
+
+    abline(h = min(table.x$LL) + 3.84, lwd = 3, lty = 2, col = "red")
+    abline(h = overall.min, lty = 3, col = "grey")
+  }
+
+  return(all.res)
+}

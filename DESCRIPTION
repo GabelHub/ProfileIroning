@@ -1,0 +1,16 @@
+Package: ProfileIroning
+Type: Package
+Title: Calculates Likelihood Profiles And Smooths Them
+Version: 0.1.0
+Author: Michael Gabel
+Maintainer: Michael Gabel <m_gabel@gmx.de>
+Description: Given a user-defined model and cost function, profile likelihoods can be obtained for all model parameters.
+    Also allows to smooth existing profiles.
+License: GPL-3
+Depends: R (>= 3.4)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
+Imports: future
+Suggests: testthat,
+    future.batchtools
