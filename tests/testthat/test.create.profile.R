@@ -29,27 +29,20 @@ cost_function <- function(parms, x.vals, y.vals, sd.y){
   })
 }
 
-dont.fit <- c(p1 = 3)
 #perform model selection
-res <- create.profile(which.par = "all.par",
+res <- create.profile(which.par = "p1",
                       par.names = inits,
-                      range = list(seq(0, 2, 0.1),
-                                   seq(0, 5, 1),
-                                   seq(2.9, 3.1, 0.01),
-                                   seq(0, 3, 0.1),
-                                   seq(1.999999, 2.000001, 0.0000001)),
+                      range = list(seq(0, 2, 0.2)),
                       fit.fn = cost_function,
                       homedir = getwd(),
-                      optim.runs = 5,
-                      random.borders = 1,
-                      con.tol = 0.1,
-                      control.optim = list(maxit = 1000),
+                      optim.runs = 2,
+                      future.off = TRUE,
                       x.vals = x.values,
                       y.vals = y.values,
                       sd.y = sd.y.values)
 
-# test_that("Gives the correct output", {
-#   expect_equal(as.numeric(round(res["LL"])), 52)
-#
-# })
+test_that("Gives the correct output", {
+  expect_equal(as.numeric(round(res[11,2])), 2)
+
+})
 

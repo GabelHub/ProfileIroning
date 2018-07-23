@@ -29,7 +29,11 @@ LL <- sum((y - c(1:3))^2)
 }
 
 #create profile values
-create.profile(which.par = "p1", par.names = c(p1 = 1, p2 = 3), range = list(seq(0,5,1)), fit.fn = cost_function,future.off = T)
+create.profile(which.par = "p1",
+               par.names = c(p1 = 1, p2 = 3),
+               range = list(seq(0,5,1)),
+               fit.fn = cost_function,
+               future.off = TRUE)
 
 #retrieve the calculated profile
 res <- get.profile(which.par = "p1", range = seq(0,5,1))

@@ -2,8 +2,9 @@
 #'
 #' Combines fitted and non-fitted parameters and calls the fitting function. Serves as a wrapping function for the user-specified fitting function \code{fit.fn} (see \code{\link{create.profile}}).
 #' @param par A named vector containing all parameters that are supposed to be fitted.
+#' @param no.fit A named parameter vector containing all parameters that are not supposed to be fitted.
 #' @param par.names The names of all parameters
-#' @param fit.fn The cost function (see \code{\link{famos}} for more details).
+#' @param fit.fn The cost function (see \code{\link{create.profile}} for more details).
 #' @param ... Other arguments.
 #' @export
 #' @return Returns the negative log-likelihood as calculated by the specified cost function
@@ -16,9 +17,8 @@
 #'     parms[1] + parms[2] + parms[3]
 #' }
 #'
-#' #call combine.and.fit
-#' unite.and.fit(par = fit.par, par.names = name.par, fit.fn = cost.function)
-#' unite.and.fit(par = fit.par, par.names = name.par, fit.fn = cost.function, default.val = defaults)
+#' #call unite.and.fit
+#' unite.and.fit(par = fit.par, no.fit = c(p3 = 1),par.names = name.par, fit.fn = cost.function)
 unite.and.fit <- function(par, no.fit, par.names, fit.fn, ...) {
 
   dots <- list(...)

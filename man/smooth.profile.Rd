@@ -46,8 +46,6 @@ NULL. Saves the refitted profiles in the folder "Profiles-Result/Tables/".
 Smooths existing profiles by refitting bad estimates. To this end, \code{smooth.profile} checks for neighbouring points that have an unusual large difference in log-likelihood and spikes, i.e. points that have higher values than both of the neighbouring points
 }
 \examples{
-#set future plan
-future::plan(future::multiprocess,workers = future::availableCores() - 2)
 #create data with standard deviation of 1
 x.values <- 1:7
 y.values <-  9 * x.values^2 - exp(2 * x.values)
@@ -62,30 +60,32 @@ cost_function <- function(parms, x.vals, y.vals, sd.y){
   if(max(abs(parms)) > 5){
     return(NA)
   }
- with(as.list(c(parms)), {
-   res <- p1*4 + p2*x.vals + p3^2*x.vals^2 + p4*sin(x.vals)  - exp(p5*x.vals)
-   diff <- sum((res - y.vals)^2/sd.y)
- })
+  with(as.list(c(parms)), {
+    res <- p1*4 + p2*x.vals + p3^2*x.vals^2 + p4*sin(x.vals)  - exp(p5*x.vals)
+    diff <- sum((res - y.vals)^2/sd.y)
+  })
 }
 
-#create a profile for p1
+#create profiles
 res <- create.profile(which.par = "p1",
                       par.names = inits,
                       range = list(seq(0, 2, 0.2)),
                       fit.fn = cost_function,
-                      optim.runs = 1,
+                      homedir = getwd(),
                       x.vals = x.values,
                       y.vals = y.values,
                       sd.y = sd.y.values)
 
-#add noise to the created profile and save it again
-res <- res[[1]]
+#add noise to profile
 res[,1] <-  res[,1] + runif(n = nrow(res), min = 0, max = 5)
 saveRDS(res, paste0(getwd(), "/Profile-Results/Tables/p1.rds"))
 
-#smooth the existing profile
+#smooth profile
 smooth.profile(which.par = "p1",
                fit.fn = cost_function,
+               homedir = getwd(),
+               optim.runs = 1,
+               future.off = TRUE,
                x.vals = x.values,
                y.vals = y.values,
                sd.y = sd.y.values)

@@ -7,8 +7,6 @@ library(ProfileIroning)
 
 set.seed(1)
 
-inits <- c(p1 = 3, p2 = 4, p3 = -2, p4 = 2, p5 = 0)
-
 #create data with standard deviation of 1
 x.values <- 1:7
 y.values <-  9 * x.values^2 - exp(2 * x.values)
@@ -32,41 +30,29 @@ cost_function <- function(parms, x.vals, y.vals, sd.y){
 dont.fit <- c(p1 = 3)
 #perform model selection
 #perform model selection
-create.profile(which.par = "p1",
+res <- create.profile(which.par = "p1",
                par.names = inits,
-               range = list(seq(0, 2, 0.1)),
+               range = list(seq(0, 2, 0.2)),
                fit.fn = cost_function,
                homedir = getwd(),
-               optim.runs = 5,
-               random.borders = 1,
-               con.tol = 0.1,
-               control.optim = list(maxit = 1000),
                x.vals = x.values,
                y.vals = y.values,
                sd.y = sd.y.values)
 
-res <- readRDS(paste0(getwd(), "/Profile-Results/Tables/p1.rds"))
 res[,1] <-  res[,1] + runif(n = nrow(res), min = 0, max = 5)
 saveRDS(res, paste0(getwd(), "/Profile-Results/Tables/p1.rds"))
 
-res <- smooth.profile(which.par = "p1",
-                      range = list(seq(0, 2, 0.1),
-                                   seq(0, 5, 1),
-                                   seq(2.9, 3.1, 0.01),
-                                   seq(0, 3, 0.1),
-                                   seq(1.999999, 2.000001, 0.0000001)),
-                      fit.fn = cost_function,
-                      homedir = getwd(),
-                      optim.runs = 5,
-                      random.borders = 1,
-                      con.tol = 0.1,
-                      control.optim = list(maxit = 1000),
-                      x.vals = x.values,
-                      y.vals = y.values,
-                      sd.y = sd.y.values)
+smooth.profile(which.par = "p1",
+               fit.fn = cost_function,
+               homedir = getwd(),
+               optim.runs = 1,
+               future.off = TRUE,
+               x.vals = x.values,
+               y.vals = y.values,
+               sd.y = sd.y.values)
 
-# test_that("Gives the correct output", {
-#   expect_equal(as.numeric(round(res["LL"])), 52)
-#
-# })
+test_that("Gives the correct output", {
+  expect_equal(as.numeric(round(res[1,"LL"])), 1)
+
+})
 

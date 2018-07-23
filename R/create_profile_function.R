@@ -51,7 +51,7 @@
 #'                       x.vals = x.values,
 #'                       y.vals = y.values,
 #'                       sd.y = sd.y.values)
-create.profile <- function(which.par, par.names, range, fit.fn, do.not.fit = NULL, homedir = getwd(), optim.runs = 5, random.borders = 1, refit = F, save.rel.diff = 0.01, con.tol = 0.1, control.optim = list(maxit = 1000), future.off = F, ...){
+create.profile <- function(which.par, par.names, range, fit.fn, do.not.fit = NULL, homedir = getwd(), optim.runs = 5, random.borders = 1, refit = FALSE, save.rel.diff = 0.01, con.tol = 0.1, control.optim = list(maxit = 1000), future.off = FALSE, ...){
   #create storage directories
   create.directories(homedir = getwd())
 
@@ -126,27 +126,38 @@ create.profile <- function(which.par, par.names, range, fit.fn, do.not.fit = NUL
         overall.min <- min(table.x[,1])
       }
     }
-    all.res[[i]] <- table.x
+
+    if(length(index) == 1){
+      all.res <- table.x
+    }else{
+      all.res[[i]] <- table.x
+    }
+
     saveRDS(table.x, paste0(homedir, "/Profile-Results/Tables/", names(par.names)[index[i]], ".rds"))
   }
-  names(all.res) <- names(par.names)[index]
+  if(length(index) > 1){
+    names(all.res) <- names(par.names)[index]
+  }
 
 
-  par(mfrow = c(nrows, ncols))
+
+  graphics::par(mfrow = c(nrows, ncols))
 
   for(i in 1:length(index)){
-    table.x <- all.res[[i]]
+    if(length(index) > 1){
+      table.x <- all.res[[i]]
+    }
 
-    plot(table.x[, names(par.names)[index[i]]],
-         table.x$LL,
-         type = "l",
-         lwd = 3,
-         xlab = names(par.names)[index[i]],
-         ylab = "-2LL",
-         main = paste0("Profile likelihood of ", names(par.names)[index[i]]))
+    graphics::plot(table.x[, names(par.names)[index[i]]],
+                   table.x$LL,
+                   type = "l",
+                   lwd = 3,
+                   xlab = names(par.names)[index[i]],
+                   ylab = "-2LL",
+                   main = paste0("Profile likelihood of ", names(par.names)[index[i]]))
 
-    abline(h = min(table.x$LL) + 3.84, lwd = 3, lty = 2, col = "red")
-    abline(h = overall.min, lty = 3, col = "grey")
+    graphics::abline(h = min(table.x$LL) + 3.84, lwd = 3, lty = 2, col = "red")
+    graphics::abline(h = overall.min, lty = 3, col = "grey")
   }
 
   return(all.res)

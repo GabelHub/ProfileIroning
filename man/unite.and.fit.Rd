@@ -9,9 +9,11 @@ unite.and.fit(par, no.fit, par.names, fit.fn, ...)
 \arguments{
 \item{par}{A named vector containing all parameters that are supposed to be fitted.}
 
+\item{no.fit}{A named parameter vector containing all parameters that are not supposed to be fitted.}
+
 \item{par.names}{The names of all parameters}
 
-\item{fit.fn}{The cost function (see \code{\link{famos}} for more details).}
+\item{fit.fn}{The cost function (see \code{\link{create.profile}} for more details).}
 
 \item{...}{Other arguments.}
 }
@@ -30,7 +32,6 @@ cost.function <- function(parms){
     parms[1] + parms[2] + parms[3]
 }
 
-#call combine.and.fit
-unite.and.fit(par = fit.par, par.names = name.par, fit.fn = cost.function)
-unite.and.fit(par = fit.par, par.names = name.par, fit.fn = cost.function, default.val = defaults)
+#call unite.and.fit
+unite.and.fit(par = fit.par, no.fit = c(p3 = 1),par.names = name.par, fit.fn = cost.function)
 }
