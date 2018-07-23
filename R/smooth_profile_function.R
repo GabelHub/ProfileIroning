@@ -371,6 +371,25 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
                          main = paste0("Smoothed profile, iteration ", iteration))
           graphics::abline(h = min(data[,1]) + 3.84, lwd = 3, lty = 2, col = "red")
 
+
+          grDevices::pdf(file = paste0(homedir, "Profile-Results/Figures/ProfileOf", which.par[s], ".pdf"),
+                         width  = 4,
+                         height = 4,
+                         useDingbats = F)
+
+          graphics::par(mfrow = c(1,1))
+          graphics::plot(data[, which.par[s]],
+                         data[,1],
+                         type = "l",
+                         lwd = 3,
+                         xlab = which.par[s],
+                         ylab = "-2LL",
+                         main = paste0("Smoothed profile, iteration ", iteration))
+          graphics::abline(h = min(data[,1]) + 3.84, lwd = 3, lty = 2, col = "red")
+
+          dev.off()
+
+
           iteration <- iteration + 1
 
           print(paste0("Improved ", improvement, " out of ", length(steepcliff), " profile values."))

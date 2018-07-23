@@ -158,6 +158,22 @@ create.profile <- function(which.par, par.names, range, fit.fn, do.not.fit = NUL
 
     graphics::abline(h = min(table.x$LL) + 3.84, lwd = 3, lty = 2, col = "red")
     graphics::abline(h = overall.min, lty = 3, col = "grey")
+
+    grDevices::pdf(file = paste0(homedir, "Profile-Results/Figures/ProfileOf", names(par.names)[index[i]], ".pdf"),
+                   width  = 4,
+                   height = 4,
+                   useDingbats = F)
+
+    graphics::plot(table.x[, names(par.names)[index[i]]],
+                   table.x$LL,
+                   type = "l",
+                   lwd = 3,
+                   xlab = names(par.names)[index[i]],
+                   ylab = "-2LL",
+                   main = paste0("Profile likelihood of ", names(par.names)[index[i]]))
+
+    dev.off()
+
   }
 
   return(all.res)
