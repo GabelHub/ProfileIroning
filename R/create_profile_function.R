@@ -4,7 +4,7 @@
 #' @param par.names A vector containing the names and initial values for all available parameters.
 #' @param range A list containing the respective ranges for which the profile should be calculated.
 #' @param fit.fn A cost function. Has to take the complete parameter vector as an input (needs to be names \code{parms}) and must return the corresponding negative log-likelihood (-2LL, see Burnham and Anderson 2002).
-#' @param do.not.fit A character vector containing the names of the parameters that should not be fitted. Default to NULL.
+#' @param do.not.fit A named vector containing the values of the parameters that should not be fitted. Default to NULL.
 #' @param homedir The directory to which the results should be saved to.
 #' @param optim.runs The number of times that each model will be fitted by \code{\link{optim}}. Default to 5.
 #' @param random.borders The ranges from which the random initial parameter conditions for all \code{optim.runs} larger than one are sampled. Can be either given as a vector containing the relative deviations for all parameters or as a matrix containing in its first column the lower and in its second column the upper border values. Parameters are uniformly sampled based on \code{\link{runif}}. Default to 1 (100\% deviation of all parameters).
@@ -53,7 +53,7 @@
 #'                       sd.y = sd.y.values)
 create.profile <- function(which.par, par.names, range, fit.fn, do.not.fit = NULL, homedir = getwd(), optim.runs = 5, random.borders = 1, refit = FALSE, save.rel.diff = 0.01, con.tol = 0.1, control.optim = list(maxit = 1000), future.off = FALSE, ...){
   #create storage directories
-  create.directories(homedir = getwd())
+  create.directories(homedir = homedir)
 
   #get all parameters
   if(which.par == "all.par"){

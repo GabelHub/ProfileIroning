@@ -18,7 +18,7 @@ create.profile(which.par, par.names, range, fit.fn, do.not.fit = NULL,
 
 \item{fit.fn}{A cost function. Has to take the complete parameter vector as an input (needs to be names \code{parms}) and must return the corresponding negative log-likelihood (-2LL, see Burnham and Anderson 2002).}
 
-\item{do.not.fit}{A character vector containing the names of the parameters that should not be fitted. Default to NULL.}
+\item{do.not.fit}{A named vector containing the values of the parameters that should not be fitted. Default to NULL.}
 
 \item{homedir}{The directory to which the results should be saved to.}
 
