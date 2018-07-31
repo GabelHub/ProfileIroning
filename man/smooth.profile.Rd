@@ -72,6 +72,7 @@ res <- create.profile(which.par = "p1",
                       range = list(seq(0, 2, 0.2)),
                       fit.fn = cost_function,
                       homedir = getwd(),
+                      delete.old = TRUE,
                       x.vals = x.values,
                       y.vals = y.values,
                       sd.y = sd.y.values)

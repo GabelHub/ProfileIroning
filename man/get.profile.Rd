@@ -4,16 +4,21 @@
 \alias{get.profile}
 \title{Create Profile Likelihood Data Frame}
 \usage{
-get.profile(which.par, range, homedir = getwd(), wait = FALSE)
+get.profile(which.par, range, homedir = getwd(), wait = FALSE,
+  delete.old = FALSE, save.it = TRUE)
 }
 \arguments{
 \item{which.par}{The names of the parameter that the profile should be returned for.}
 
-\item{range}{A numeric vector determining the values for which the profile should be calculated.}
+\item{range}{A numeric vector determining the values for which the profile should be calculated. Alternatively, setting it to "get.all" retrieves all available profile values and binds them together.}
 
 \item{homedir}{The directory in which the folder \code{"Profile-Results"} is found. Default to \code{\link{getwd}}().}
 
 \item{wait}{Logical. If true, \code{get.profile} will wait if a certain profile value has not been fitted yet (i.e. the corresponding status file is not equal to "done").}
+
+\item{delete.old}{Logical. If TRUE, the individual point-wise fits created by \code{\link{point.profile}} will be deleted after using them. Default to FALSE.}
+
+\item{save.it}{Logical. If TRUE (default), the gathered data will be bound and saved in the "Profile-Results/Tables/" folder.}
 }
 \value{
 A data frame containing the negative log-likelihood and the fitted parameter values for a specific range created by \code{\link{create.profile}}.
@@ -24,17 +29,17 @@ Given previously calculated profile values by \code{\link{create.profile}}, \cod
 \examples{
 #define cost function
 cost_function <- function(parms){
-y <- parms[1] + parms[2]*c(1:3)
+y <- parms[1] + parms[2]*c(1:3) + parms[3]*sin(c(1:3))
 LL <- sum((y - c(1:3))^2)
 }
 
 #create profile values
-create.profile(which.par = "p1",
-               par.names = c(p1 = 1, p2 = 3),
+create.profile(which.par = "get.p1",
+               par.names = c(get.p1 = 1, get.p2 = 3, get.p3 = -2),
                range = list(seq(0,5,1)),
                fit.fn = cost_function,
                future.off = TRUE)
 
 #retrieve the calculated profile
-res <- get.profile(which.par = "p1", range = seq(0,5,1))
+res <- get.profile(which.par = "get.p1", range = seq(0,5,1))
 }

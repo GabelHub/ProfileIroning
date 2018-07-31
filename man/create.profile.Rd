@@ -7,7 +7,7 @@
 create.profile(which.par, par.names, range, fit.fn, do.not.fit = NULL,
   homedir = getwd(), optim.runs = 5, random.borders = 1, refit = FALSE,
   save.rel.diff = 0.01, con.tol = 0.1, control.optim = list(maxit = 1000),
-  future.off = FALSE, ...)
+  future.off = FALSE, bind.old = FALSE, delete.old = FALSE, ...)
 }
 \arguments{
 \item{which.par}{Name of the parameter that a profile should be obtained for. If multiple profiles are supposed to be calculated, a vector can be passed along as well. Alternatively, supplying "all.par" calculates the profiles for all available parameters.}
@@ -26,7 +26,7 @@ create.profile(which.par, par.names, range, fit.fn, do.not.fit = NULL,
 
 \item{random.borders}{The ranges from which the random initial parameter conditions for all \code{optim.runs} larger than one are sampled. Can be either given as a vector containing the relative deviations for all parameters or as a matrix containing in its first column the lower and in its second column the upper border values. Parameters are uniformly sampled based on \code{\link{runif}}. Default to 1 (100\% deviation of all parameters).}
 
-\item{refit}{If TRUE, previously fitted ranges will be fitted again and results will be overwritten according to the value set in \code{save.rel.diff}. Default to FALSE.}
+\item{refit}{If TRUE, previously fitted ranges will be fitted again and results will be overwritten according to the value set in \code{save.rel.diff}. Default to FALSE. Works only if \code{delete.old} is set to FALSE.}
 
 \item{save.rel.diff}{A numeric value indicating when to overwrite a pre-existing result. Default to 0.01, which means that results get overwritten only if an improvement larger than 1\% of the pre-existing value is made.}
 
@@ -35,6 +35,10 @@ create.profile(which.par, par.names, range, fit.fn, do.not.fit = NULL,
 \item{control.optim}{Control parameters passed along to \code{optim}. For more details, see \code{\link{optim}}.}
 
 \item{future.off}{Logical. If TRUE, \code{\link{future}} will not be used to calculate the results. Default to FALSE.}
+
+\item{bind.old}{Logical. If TRUE, previously calculated values will also be added to the profile if available. Default to FALSE.}
+
+\item{delete.old}{Logical. If TRUE, the individual point-wise fits created by \code{\link{point.profile}} will be deleted after using them. Default to FALSE.}
 
 \item{...}{Additional parameters that can be passed along to \code{\link{future}} or \code{fit.fn}.}
 }
@@ -75,6 +79,7 @@ res <- create.profile(which.par = "all.par",
                                  seq(1.999999, 2.000001, 0.0000001)),
                       fit.fn = cost_function,
                       optim.runs = 1,
+                      delete.old = TRUE,
                       x.vals = x.values,
                       y.vals = y.values,
                       sd.y = sd.y.values)

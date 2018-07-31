@@ -3,6 +3,7 @@
 export(create.directories)
 export(create.profile)
 export(get.profile)
+export(plotting.profile)
 export(point.profile)
 export(smooth.profile)
 export(unite.and.fit)

@@ -46,6 +46,7 @@
 #'                       range = list(seq(0, 2, 0.2)),
 #'                       fit.fn = cost_function,
 #'                       homedir = getwd(),
+#'                       delete.old = TRUE,
 #'                       x.vals = x.values,
 #'                       y.vals = y.values,
 #'                       sd.y = sd.y.values)
@@ -70,7 +71,7 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
     stop("Use 'do.not.fit' only with a single entry of 'which.par'!")
   }
 
-  if(which.par == "all.par"){
+  if(which.par[1] == "all.par"){
     filenames <- list.files(paste0(homedir,"/Profile-Results/Tables"), pattern="*.rds", full.names=FALSE)
     which.par <- as.vector(gsub(".rds", "", filenames))
   }
@@ -372,7 +373,7 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
           graphics::abline(h = min(data[,1]) + 3.84, lwd = 3, lty = 2, col = "red")
 
 
-          grDevices::pdf(file = paste0(homedir, "Profile-Results/Figures/ProfileOf", which.par[s], ".pdf"),
+          grDevices::pdf(file = paste0(homedir, "/Profile-Results/Figures/ProfileOf", which.par[s], ".pdf"),
                          width  = 4,
                          height = 4,
                          useDingbats = F)
@@ -387,7 +388,7 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
                          main = paste0("Smoothed profile, iteration ", iteration))
           graphics::abline(h = min(data[,1]) + 3.84, lwd = 3, lty = 2, col = "red")
 
-          dev.off()
+          grDevices::dev.off()
 
 
           iteration <- iteration + 1
