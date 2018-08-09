@@ -44,10 +44,7 @@ cost_function <- function(parms, x.vals, y.vals, sd.y){
     diff <- sum((res - y.vals)^2/sd.y)
   })
 }
-
-dont.fit <- c(p1 = 3)
-#perform model selection
-#perform model selection
+#creating profile
 res <- create.profile(which.par = "p1",
                       par.names = inits,
                       range = list(seq(0, 2, 0.2)),
@@ -57,9 +54,10 @@ res <- create.profile(which.par = "p1",
                       y.vals = y.values,
                       sd.y = sd.y.values)
 
+#add noise
 res[,1] <-  res[,1] + runif(n = nrow(res), min = 0, max = 5)
 saveRDS(res, paste0(getwd(), "/Profile-Results/Tables/p1.rds"))
-
+#smooth profile
 smooth.profile(which.par = "p1",
                fit.fn = cost_function,
                homedir = getwd(),
@@ -68,6 +66,6 @@ smooth.profile(which.par = "p1",
                x.vals = x.values,
                y.vals = y.values,
                sd.y = sd.y.values)
-
+#plot the results
 plotting.profile(which.par = "p1")
 ```
