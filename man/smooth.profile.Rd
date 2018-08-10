@@ -11,11 +11,11 @@ smooth.profile(which.par, fit.fn, threshold = "auto", spike.min = 0.01,
   future.off = F, ...)
 }
 \arguments{
-\item{which.par}{A vector containing the names of all parameters for which the respective profiles should be smoothed.}
+\item{which.par}{A vector containing the names of all parameters for which the respective profiles should be smoothed. Alternatively, supplying "all.par" smooths all existing profiles.}
 
 \item{fit.fn}{A cost function. Has to take the complete parameter vector as an input (needs to be names \code{parms}) and must return the corresponding negative log-likelihood (-2LL, see Burnham and Anderson 2002).}
 
-\item{threshold}{A numeric value determining the minimal difference between two neighbouring points that leads to refitting. Alternatively, threshold can be set to "auto" (default), which chooses a suitable minimal difference automatically.}
+\item{threshold}{A numeric value determining the minimal difference between two neighbouring points that leads to refitting. Alternatively, threshold can be set to "auto" (default), which chooses a minimal difference automatically (this is calculated by dividing the difference between maximal and minimal values by the number of profile points).}
 
 \item{spike.min}{A numeric value determining the minimal difference for detecting spikes. Default to 0.01.}
 

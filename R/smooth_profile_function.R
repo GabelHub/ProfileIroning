@@ -1,9 +1,9 @@
 #' Smooth existing profiles
 #'
 #' Smooths existing profiles by refitting bad estimates. To this end, \code{smooth.profile} checks for neighbouring points that have an unusual large difference in log-likelihood and spikes, i.e. points that have higher values than both of the neighbouring points
-#' @param which.par A vector containing the names of all parameters for which the respective profiles should be smoothed.
+#' @param which.par A vector containing the names of all parameters for which the respective profiles should be smoothed. Alternatively, supplying "all.par" smooths all existing profiles.
 #' @param fit.fn A cost function. Has to take the complete parameter vector as an input (needs to be names \code{parms}) and must return the corresponding negative log-likelihood (-2LL, see Burnham and Anderson 2002).
-#' @param threshold A numeric value determining the minimal difference between two neighbouring points that leads to refitting. Alternatively, threshold can be set to "auto" (default), which chooses a suitable minimal difference automatically.
+#' @param threshold A numeric value determining the minimal difference between two neighbouring points that leads to refitting. Alternatively, threshold can be set to "auto" (default), which chooses a minimal difference automatically (this is calculated by dividing the difference between maximal and minimal values by the number of profile points).
 #' @param spike.min A numeric value determining the minimal difference for detecting spikes. Default to 0.01.
 #' @param do.not.fit The names of the parameter that are not to be fitted. Can only be supplied if a single profile is smoothed
 #' @param homedir The directory to which the results should be saved to. Default to \code{\link{getwd}}().
@@ -98,10 +98,10 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
     #get parameter range
     print(paste0("Analysing profile table for parameter ", which.par[s]))
 
-    col.pl <- which(names(data) == which.par[s])
-    range <- data[, col.pl]
+    col.pl <- which(names(data)[2:ncol(data)] == which.par[s])
+    range <- data[, col.pl + 1]
     if(is.null(do.not.fit) == FALSE){
-      col.pl <- c(col.pl, which(names(data)[2:ncol(data)]) %in% do.not.fit)
+      col.pl <- c(col.pl, which(names(data)[2:ncol(data)] %in% do.not.fit))
     }
     par.range <- 2:ncol(data)
     par.range <- par.range[-c(col.pl-1)]
@@ -152,7 +152,7 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
       #get problematic entries
       steepcliff <- which(sel.steepcliff > 0)
       print(paste0("Found ", length(steepcliff)," unsuitable value(s) in the profile (difference to neighbouring points larger than ", format(cliff.min, digits = 2), ")."))
-      print(data[steepcliff, col.pl])
+      print(data[steepcliff, col.pl + 1])
 
       #fit only if cliffs are present
       if(length(steepcliff) > 0){
@@ -160,8 +160,8 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
         for(i in 1:length(steepcliff)){
           k <- steepcliff[i]
           cliff <- sel.steepcliff[k]
-          fixed.par <- data[k, col.pl]
-          names(fixed.par) <- names(data)[col.pl]
+          fixed.par <- data[k, col.pl + 1]
+          names(fixed.par) <- names(data)[col.pl + 1]
           #set seed for random fitting
           set.seed(unclass(Sys.time()))
 
@@ -340,10 +340,10 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
         }
 
         for(j in 1:length(steepcliff)){
-          while(readRDS(paste0(homedir, "/Profile-Results/Status/status", which.par[s],"_", data[steepcliff[j], col.pl], ".rds")) != "done"){
+          while(readRDS(paste0(homedir, "/Profile-Results/Status/status", which.par[s],"_", data[steepcliff[j], col.pl + 1], ".rds")) != "done"){
             Sys.sleep(5)
           }
-          res <- readRDS(paste0(homedir, "/Profile-Results/Fits/", which.par[s],"_", data[steepcliff[j], col.pl], ".rds"))
+          res <- readRDS(paste0(homedir, "/Profile-Results/Fits/", which.par[s],"_", data[steepcliff[j], col.pl + 1], ".rds"))
           if(res[1] < data[steepcliff[j], 1]){
             data[steepcliff[j], ] <- res
             improvement <- improvement + 1
@@ -411,3 +411,4 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
 
 
 }
+
