@@ -1,4 +1,4 @@
-context("Test the optimising function point.profile")
+context("Test the optimising function smooth.profile")
 
 system("rm -r tests/testthat/Profile-Results")
 system("rm -r Profile-Results")
@@ -27,22 +27,27 @@ cost_function <- function(parms, x.vals, y.vals, sd.y){
   })
 }
 
-dont.fit <- c(p1 = 3)
 #perform model selection
-#perform model selection
-res <- create.profile(which.par = "p1",
+res <- create.profile(which.par = c("p1","p2","p3"),
                par.names = inits,
-               range = list(seq(0, 2, 0.2)),
+               range = list(seq(0, 2, 0.2), seq(0, 2, 0.2), seq(0, 2, 0.2)),
                fit.fn = cost_function,
+               optim.runs = 1,
                homedir = getwd(),
                x.vals = x.values,
                y.vals = y.values,
                sd.y = sd.y.values)
 
-res[,1] <-  res[,1] + runif(n = nrow(res), min = 0, max = 5)
-saveRDS(res, paste0(getwd(), "/Profile-Results/Tables/p1.rds"))
+res[[1]][,1] <-  res[[1]][,1] + runif(n = nrow(res[[1]]), min = 0, max = 5)
+saveRDS(res[[1]], paste0(getwd(), "/Profile-Results/Tables/p1.rds"))
 
-smooth.profile(which.par = "p1",
+res[[2]][,1] <-  res[[2]][,1] + runif(n = nrow(res[[2]]), min = 0, max = 5)
+saveRDS(res[[2]], paste0(getwd(), "/Profile-Results/Tables/p2.rds"))
+
+res[[3]][,1] <-  res[[3]][,1] + runif(n = nrow(res[[3]]), min = 0, max = 5)
+saveRDS(res[[3]], paste0(getwd(), "/Profile-Results/Tables/p3.rds"))
+
+smooth.profile(which.par = "all.par",
                fit.fn = cost_function,
                homedir = getwd(),
                optim.runs = 1,

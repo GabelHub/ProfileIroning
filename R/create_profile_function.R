@@ -122,7 +122,7 @@ create.profile <- function(which.par, par.names, range, fit.fn, do.not.fit = NUL
 
   #plot the outcome
 
-  nrows = sqrt(length(index))
+  nrows = round(sqrt(length(index)))
   ncols = ifelse(length(index) == 1, 1, ceiling(sqrt(length(index))))
   all.res <- list()
 

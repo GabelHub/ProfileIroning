@@ -67,7 +67,7 @@
 
 smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.01, do.not.fit = NULL, homedir = getwd(), optim.runs = 5, random.borders = 1, refit = F, con.tol = 0.1, control.optim = list(maxit = 1000), save.rel.diff = 0.01, future.off = F, ...){
 
-  if( (length(which.par) > 1 || which.par == "all.par") && is.null(do.not.fit) == FALSE){
+  if( (length(which.par) > 1 || which.par[1] == "all.par") && is.null(do.not.fit) == FALSE){
     stop("Use 'do.not.fit' only with a single entry of 'which.par'!")
   }
 
@@ -76,53 +76,69 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
     which.par <- as.vector(gsub(".rds", "", filenames))
   }
 
+  #set graphical parameters
+  nrows = round(sqrt(length(which.par)))
+  ncols = ifelse(length(which.par) == 1, 1, ceiling(sqrt(length(which.par))))
+  graphics::par(mfrow = c(nrows, ncols))
+
+  #storage parameters
+  save.data <- list()
+
+  #plot the unsmoothed profiles
   for(s in 1:length(which.par)){
     if(file.exists(paste0(homedir, "/Profile-Results/Tables/", which.par[s], ".rds")) == FALSE){
       stop(paste0("The results table for parameter ", which.par[s], " is missing."))
     }
-    data <- readRDS(paste0(homedir, "/Profile-Results/Tables/", which.par[s], ".rds"))
+    save.data[[s]] <- readRDS(paste0(homedir, "/Profile-Results/Tables/", which.par[s], ".rds"))
 
     #plot data
-    graphics::par(mfrow = c(1,1))
-    graphics::plot(data[, which.par[s]],
-                   data[,1],
+
+    graphics::plot(save.data[[s]][, which.par[s]],
+                   save.data[[s]][,1],
                    type = "l",
                    lwd = 3,
                    xlab = which.par[s],
                    ylab = "-2LL",
                    main = paste0("Unsmoothed profile of parameter ", which.par[s]))
-    graphics::abline(h = min(data[,1]) + 3.84, lwd = 3, lty = 2, col = "red")
+    graphics::abline(h = min(save.data[[s]][,1]) + 3.84, lwd = 3, lty = 2, col = "red")
+  }
 
-    #set iteration index
-    iteration <- 1
-    #get parameter range
-    print(paste0("Analysing profile table for parameter ", which.par[s]))
-
-    col.pl <- which(names(data)[2:ncol(data)] == which.par[s])
-    range <- data[, col.pl + 1]
-    if(is.null(do.not.fit) == FALSE){
-      col.pl <- c(col.pl, which(names(data)[2:ncol(data)] %in% do.not.fit))
+  #set iteration index
+  iteration <- 1
+  improvement <- rep(1, length(which.par))
+  which.improved <- list(rep(1, nrow(save.data[[1]])))
+  if(length(which.par) > 1){
+    for(s in 2:length(which.par)){
+      which.improved[[s]] <- rep(1, nrow(save.data[[s]]))
     }
-    par.range <- 2:ncol(data)
-    par.range <- par.range[-c(col.pl-1)]
+  }
+  save.steepcliff <- list()
+  save.col.pl <- list()
+
+  while(any(improvement != 0)){
+
+    for(s in which(improvement != 0)){
+      #get parameter range
+      print(paste0("Analysing profile table for parameter ", which.par[s]))
+      data <- save.data[[s]]
+      col.pl <- which(names(data)[2:ncol(data)] == which.par[s])
+      range <- data[, col.pl + 1]
+      if(is.null(do.not.fit) == FALSE){
+        col.pl <- c(col.pl, which(names(data)[2:ncol(data)] %in% do.not.fit))
+      }
+      save.col.pl[[s]] <- col.pl
+      par.range <- 2:ncol(data)
+      par.range <- par.range[-c(col.pl-1)]
 
 
-    #set count variables for first run
-    improvement <- 1
-    which.improved <- rep(1, nrow(data))
 
-    if(threshold == "auto"){
-      cliff.min <- (max(data[,1]) - min(data[,1]))/nrow(data)
-    }else{
-      cliff.min <- threshold
-    }
-
-    #run until refitting of cliffs does not yield any improvement and no more spikes are present
-    ###MAIN LOOP####
-    while(improvement > 0 ){
-
-      #define improvement variable
-      improvement <- 0
+      if(threshold == "auto"){
+        cliff.min <- (max(data[,1]) - min(data[,1]))/nrow(data)
+      }else{
+        cliff.min <- threshold
+      }
+      #run until refitting of cliffs does not yield any improvement and no more spikes are present
+      ###MAIN LOOP####
       ###SMOOTHING####
       #find steep cliffs and specify the type: 1 - cliff to the left, 2- cliff to the right, 12 - spiked value
       sel.steepcliff <- rep(0, length(range))
@@ -151,7 +167,8 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
       }
       #get problematic entries
       steepcliff <- which(sel.steepcliff > 0)
-      print(paste0("Found ", length(steepcliff)," unsuitable value(s) in the profile (difference to neighbouring points larger than ", format(cliff.min, digits = 2), ")."))
+      save.steepcliff[[s]] <- steepcliff
+      print(paste0("Found ", length(steepcliff)," unsuitable value(s) in the profile (spike or difference to neighbouring points larger than ", format(cliff.min, digits = 2), ")."))
       print(data[steepcliff, col.pl + 1])
 
       #fit only if cliffs are present
@@ -336,79 +353,78 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
             }
           }
 
-
         }
-
-        for(j in 1:length(steepcliff)){
-          while(readRDS(paste0(homedir, "/Profile-Results/Status/status", which.par[s],"_", data[steepcliff[j], col.pl + 1], ".rds")) != "done"){
-            Sys.sleep(5)
-          }
-          res <- readRDS(paste0(homedir, "/Profile-Results/Fits/", which.par[s],"_", data[steepcliff[j], col.pl + 1], ".rds"))
-          if(res[1] < data[steepcliff[j], 1]){
-            data[steepcliff[j], ] <- res
-            improvement <- improvement + 1
-            if(j == 1){
-              slct <- c(1,2)
-            }else if(j == nrow(data)){
-              slct <- c(j-1, j)
-            }else{
-              slct <- c(j-1, j, j +1)
-            }
-            which.improved[slct] <- 1
-          }else{
-            which.improved[j] <- 0
-          }
-        }
-
-        if(improvement > 0){
-          saveRDS(data, paste0(homedir, "/Profile-Results/Tables/", which.par[s], ".rds"))
-          graphics::par(mfrow = c(1,1))
-          graphics::plot(data[, which.par[s]],
-                         data[,1],
-                         type = "l",
-                         lwd = 3,
-                         xlab = which.par[s],
-                         ylab = "-2LL",
-                         main = paste0("Smoothed profile, iteration ", iteration))
-          graphics::abline(h = min(data[,1]) + 3.84, lwd = 3, lty = 2, col = "red")
-
-
-          grDevices::pdf(file = paste0(homedir, "/Profile-Results/Figures/ProfileOf", which.par[s], ".pdf"),
-                         width  = 4,
-                         height = 4,
-                         useDingbats = F)
-
-          graphics::par(mfrow = c(1,1))
-          graphics::plot(data[, which.par[s]],
-                         data[,1],
-                         type = "l",
-                         lwd = 3,
-                         xlab = which.par[s],
-                         ylab = "-2LL",
-                         main = paste0("Smoothed profile, iteration ", iteration))
-          graphics::abline(h = min(data[,1]) + 3.84, lwd = 3, lty = 2, col = "red")
-
-          grDevices::dev.off()
-
-
-          iteration <- iteration + 1
-
-          print(paste0("Improved ", improvement, " out of ", length(steepcliff), " profile values."))
-        }else{
-          print("No further improvement in profile values was achieved. Terminating.")
-        }
-
-
-
-
       }
 
-    }#end of while(improvement > 0 || length(badfit) > 0){
+    }
+    #read in data
+    for(k in which(improvement != 0)){
+      #define improvement variable
+      improvement[k] <- 0
+      for(j in 1:length(save.steepcliff[[k]])){
+        while(readRDS(paste0(homedir, "/Profile-Results/Status/status", which.par[k],"_", save.data[[k]][save.steepcliff[[k]][j], save.col.pl[[k]] + 1], ".rds")) != "done"){
+          Sys.sleep(5)
+        }
+        res <- readRDS(paste0(homedir, "/Profile-Results/Fits/", which.par[k],"_", save.data[[k]][save.steepcliff[[k]][j], save.col.pl[[k]] + 1], ".rds"))
+        if(res[1] < save.data[[k]][save.steepcliff[[k]][j], 1]){
+          save.data[[k]][save.steepcliff[[k]][j], ] <- res
+          improvement[k] <- improvement[k] + 1
+          if(j == 1){
+            slct <- c(1,2)
+          }else if(j == nrow(save.data[[k]])){
+            slct <- c(j-1, j)
+          }else{
+            slct <- c(j-1, j, j +1)
+          }
+          which.improved[[k]][slct] <- 1
+        }else{
+          which.improved[[k]][j] <- 0
+        }
+      }
 
+      if(improvement[k] > 0){
+        print(paste0("Improved ", improvement[k], " out of ", length(steepcliff), " profile values."))
+        saveRDS(save.data[[k]], paste0(homedir, "/Profile-Results/Tables/", which.par[k], ".rds"))
+      }
 
+    }
 
+    graphics::par(mfrow = c(nrows, ncols))
+    for(s in 1:length(which.par)){
+      graphics::plot(save.data[[s]][, which.par[s]],
+                     save.data[[s]][,1],
+                     type = "l",
+                     lwd = 3,
+                     xlab = which.par[s],
+                     ylab = "-2LL",
+                     main = paste0("Smoothed profile, iteration ", iteration))
+      graphics::abline(h = min(save.data[[s]][,1]) + 3.84, lwd = 3, lty = 2, col = "red")
+    }
+
+    grDevices::pdf(file = paste0(homedir, "/Profile-Results/Figures/Profiles", ".pdf"),
+                   width  = 4*ncols,
+                   height = 4*nrows,
+                   useDingbats = F)
+    graphics::par(mfrow = c(nrows, ncols))
+    for(s in 1:length(which.par)){
+      graphics::plot(save.data[[s]][, which.par[s]],
+                     save.data[[s]][,1],
+                     type = "l",
+                     lwd = 3,
+                     xlab = which.par[s],
+                     ylab = "-2LL",
+                     main = paste0("Smoothed profile, iteration ", iteration))
+      graphics::abline(h = min(save.data[[s]][,1]) + 3.84, lwd = 3, lty = 2, col = "red")
+    }
+    grDevices::dev.off()
+
+    iteration <- iteration + 1
+
+    if(any(improvement > 0) == FALSE){
+      print("No further improvement in profile values was achieved. Terminating.")
+    }
   }
 
 
-}
 
+}

@@ -30,7 +30,7 @@
 
 get.profile <- function(which.par, range, homedir = getwd(), wait = FALSE, delete.old = FALSE, save.it = TRUE){
 
-  if(range == "get.all"){
+  if(range[1] == "get.all"){
     range <- c()
     all.files <- list.files(paste0(homedir, "/Profile-Results/Fits"), pattern = which.par)
     for(i in 1:length(all.files)){

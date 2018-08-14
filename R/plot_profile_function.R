@@ -4,6 +4,7 @@
 #' @param which.par Name of the parameter that a profile should be obtained for. If multiple profiles are supposed to be calculated, a vector can be passed along as well. Alternatively, supplying "all.par" calculates the profiles for all available parameters.
 #' @param homedir The directory to which the results should be saved to. Default to \code{\link{getwd}}().
 #' @param conf.level The confidence level used for calculating the confidence intervals. Default to 0.95.
+#' @param ... Additional arguments that can be passed on to \code{\link{plot}}.
 #'
 #' @return Plots the profiles and returns the confidence intervals
 #' @export
@@ -45,7 +46,7 @@
 #'                       sd.y = sd.y.values)
 #'
 #' plotting.profile("all.par")
-plotting.profile <- function(which.par, homedir = getwd(), conf.level = 0.95){
+plotting.profile <- function(which.par, homedir = getwd(), conf.level = 0.95, ...){
 
   if(which.par[1] == "all.par"){
     filenames <- list.files(paste0(homedir,"/Profile-Results/Tables"), pattern="*.rds", full.names=FALSE)
@@ -72,6 +73,7 @@ plotting.profile <- function(which.par, homedir = getwd(), conf.level = 0.95){
   ncols = ifelse(length(which.par) == 1, 1, ceiling(sqrt(length(which.par))))
 
   store.conf <- c()
+  dots <- list(...)
 
   graphics::par(mfrow = c(nrows, ncols))
 
@@ -79,17 +81,18 @@ plotting.profile <- function(which.par, homedir = getwd(), conf.level = 0.95){
     table.x <- store[[i]]
     conf <- c(min(which(table.x$LL <= cut.off)), max(which(table.x$LL <= cut.off)))
     conf.interval <- c(min = min(table.x[which(table.x$LL == min(table.x$LL)), which.par[i]]),
-                       lower = table.x[conf[1], which.par[i]],
-                       upper = table.x[conf[2], which.par[i]])
+                       lower.ci = table.x[conf[1], which.par[i]],
+                       upper.ci = table.x[conf[2], which.par[i]])
     store.conf <- rbind(store.conf, conf.interval)
 
-    graphics::plot(table.x[, which.par[i]],
-                   table.x$LL,
-                   type = "l",
-                   lwd = 3,
-                   xlab = which.par[i],
-                   ylab = "-2LL",
-                   main = paste0("Profile likelihood of ", which.par[i]))
+    do.call(graphics::plot, c(list(x = table.x[, which.par[i]],
+                                  y = table.x$LL,
+                                  type = "l",
+                                  lwd = 3,
+                                  xlab = which.par[i],
+                                  ylab = "-2LL",
+                                  main = paste0("Profile likelihood of ", which.par[i])),
+                              dots))
 
     graphics::abline(h = cut.off, lwd = 3, lty = 2, col = "red")
     graphics::abline(h = overall.min, lty = 3, col = "grey")
@@ -99,4 +102,3 @@ plotting.profile <- function(which.par, homedir = getwd(), conf.level = 0.95){
   return(store.conf)
 
 }
-

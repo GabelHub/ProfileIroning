@@ -4,7 +4,7 @@
 \alias{plotting.profile}
 \title{Plot Calculated Profiles}
 \usage{
-plotting.profile(which.par, homedir = getwd(), conf.level = 0.95)
+plotting.profile(which.par, homedir = getwd(), conf.level = 0.95, ...)
 }
 \arguments{
 \item{which.par}{Name of the parameter that a profile should be obtained for. If multiple profiles are supposed to be calculated, a vector can be passed along as well. Alternatively, supplying "all.par" calculates the profiles for all available parameters.}
@@ -12,6 +12,8 @@ plotting.profile(which.par, homedir = getwd(), conf.level = 0.95)
 \item{homedir}{The directory to which the results should be saved to. Default to \code{\link{getwd}}().}
 
 \item{conf.level}{The confidence level used for calculating the confidence intervals. Default to 0.95.}
+
+\item{...}{Additional arguments that can be passed on to \code{\link{plot}}.}
 }
 \value{
 Plots the profiles and returns the confidence intervals
