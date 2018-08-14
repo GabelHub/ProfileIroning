@@ -88,8 +88,8 @@ point.profile <- function(no.fit,
             random.min <- fit.vector - random.borders*abs(fit.vector)
             random.max <- fit.vector + random.borders*abs(fit.vector)
           }else{
-            random.min <- fit.vector - random.borders[-no.fit]*abs(fit.vector)
-            random.max <- fit.vector + random.borders[-no.fit]*abs(fit.vector)
+            random.min <- fit.vector - random.borders[-which(names(parms) %in% names(no.fit))]*abs(fit.vector)
+            random.max <- fit.vector + random.borders[-which(names(parms) %in% names(no.fit))]*abs(fit.vector)
           }
 
         }else if(is.matrix(random.borders)){
@@ -97,8 +97,8 @@ point.profile <- function(no.fit,
             random.min <- rep(random.borders[1,1], length(fit.vector))
             random.max <- rep(random.borders[1,2], length(fit.vector))
           }else{
-            random.min <- random.borders[-no.fit,1]
-            random.max <- random.borders[-no.fit,2]
+            random.min <- random.borders[-which(names(parms) %in% names(no.fit)),1]
+            random.max <- random.borders[-which(names(parms) %in% names(no.fit)),2]
           }
         }else{
           stop("random.borders must be a number, a vector or a matrix!")
@@ -216,4 +216,3 @@ point.profile <- function(no.fit,
 
   return(result)
 }
-

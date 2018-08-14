@@ -51,13 +51,13 @@ smooth.profile(which.par = "all.par",
                fit.fn = cost_function,
                homedir = getwd(),
                optim.runs = 1,
-               future.off = TRUE,
+               future.off = FALSE,
                x.vals = x.values,
                y.vals = y.values,
                sd.y = sd.y.values)
 
 test_that("Gives the correct output", {
-  expect_equal(as.numeric(round(res[1,"LL"])), 1)
+  expect_equal(as.numeric(round(res[[1]][1,"LL"])), 1)
 
 })
 

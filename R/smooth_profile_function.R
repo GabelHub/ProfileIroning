@@ -116,7 +116,7 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
   save.col.pl <- list()
 
   while(any(improvement != 0)){
-
+    print(paste0("ITERATION ", iteration))
     for(s in which(improvement != 0)){
       #get parameter range
       print(paste0("Analysing profile table for parameter ", which.par[s]))
@@ -383,8 +383,10 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
       }
 
       if(improvement[k] > 0){
-        print(paste0("Improved ", improvement[k], " out of ", length(steepcliff), " profile values."))
+        print(paste0("Improved ", improvement[k], " out of ", length(steepcliff), " profile values for parameter ",which.par[s],"."))
         saveRDS(save.data[[k]], paste0(homedir, "/Profile-Results/Tables/", which.par[k], ".rds"))
+      }else{
+        print(paste0("Improved ", improvement[k], " out of ", length(steepcliff), " profile values for parameter ",which.par[s],". Smoothing terminated for this parameter."))
       }
 
     }
@@ -421,10 +423,7 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
     iteration <- iteration + 1
 
     if(any(improvement > 0) == FALSE){
-      print("No further improvement in profile values was achieved. Terminating.")
+      print("No further improvement in any profiles was achieved. Terminating.")
     }
   }
-
-
-
 }
