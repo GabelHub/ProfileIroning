@@ -226,10 +226,3 @@ point.profile <- function(no.fit,
 
   return(result)
 }
-
-point.profile(no.fit = c(p1 = 1),parms = inits, fit.fn = cost_function,
-              random.borders = rchisq,
-              x.vals = x.values,
-              y.vals = y.values,
-              sd.y = sd.y.values,
-              df = c(10,2,3,4))

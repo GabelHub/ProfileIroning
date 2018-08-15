@@ -19,7 +19,7 @@ point.profile(no.fit, parms, fit.fn, homedir = getwd(), optim.runs = 5,
 
 \item{optim.runs}{The number of times that each model will be fitted by \code{\link{optim}}. Default to 5.}
 
-\item{random.borders}{The ranges from which the random initial parameter conditions for all \code{optim.runs} larger than one are sampled. Can be either given as a vector containing the relative deviations for all parameters or as a matrix containing in its first column the lower and in its second column the upper border values. Parameters are uniformly sampled based on \code{\link{runif}}. Default to 1 (100\% deviation of all parameters).}
+\item{random.borders}{The ranges from which the random initial parameter conditions for all \code{optim.runs} larger than one are sampled. Can be either given as a vector containing the relative deviations for all parameters or as a matrix containing in its first column the lower and in its second column the upper border values. Parameters are uniformly sampled based on \code{\link{runif}}. Default to 1 (100\% deviation of all parameters). Alternatively, functions such as \code{\link{rnorm}}, \code{\link{rchisq}}, etc. can be used if the additional arguments are passed along as well.}
 
 \item{con.tol}{The absolute convergence tolerance of each fitting run (see Details). Default is set to 0.1.}
 
