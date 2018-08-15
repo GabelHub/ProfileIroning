@@ -37,8 +37,8 @@ get.profile <- function(which.par, range, homedir = getwd(), wait = FALSE, delet
       val <- gsub(pattern = paste0(which.par, "_"),replacement = "", all.files[i])
       val <- gsub(pattern = paste0(".rds"),replacement = "", val)
       range <- c(range, as.numeric(val))
-      range <- unique(range[order(range)])
     }
+    range <- unique(range[order(range)])
   }
 
   res <- c()
