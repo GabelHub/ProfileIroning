@@ -138,7 +138,7 @@ create.profile <- function(which.par, par.names, range, fit.fn, do.not.fit = NUL
         }
       }
 
-      get.range <- unique(extra.range, range[[i]])
+      get.range <- unique(c(extra.range, as.vector(range[[i]])))
       get.range <- get.range[order(get.range)]
 
     }else{
