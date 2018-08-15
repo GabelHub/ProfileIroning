@@ -128,7 +128,17 @@ create.profile <- function(which.par, par.names, range, fit.fn, do.not.fit = NUL
 
   for(i in 1:length(index)){
     if(bind.old == TRUE){
-      get.range <- "get.all"
+      extra.range <- c()
+      all.files <- list.files(paste0(homedir, "/Profile-Results/Fits"), pattern = which.par[i])
+      for(i in 1:length(all.files)){
+        val <- gsub(pattern = paste0(which.par[i], "_"), replacement = "", all.files[i])
+        val <- gsub(pattern = paste0(".rds"), replacement = "", val)
+        extra.range <- c(extra.range, as.numeric(val))
+      }
+
+      get.range <- unique(extra.range, range[[i]])
+      get.range <- get.range[order(get.range)]
+
     }else{
       get.range <- range[[i]]
     }
