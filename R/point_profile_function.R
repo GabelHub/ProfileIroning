@@ -58,7 +58,7 @@ point.profile <- function(no.fit,
     cat(paste0("\nFitting run # ", k, "\n"))
 
     # update status file to number of current fit run
-    saveRDS(object = k, file = paste0(homedir, "/Profile-Results/Status/status", paste0(names(no.fit[1]),"_", no.fit[1]), ".rds"))
+    # saveRDS(object = k, file = paste0(homedir, "/Profile-Results/Status/status", paste0(names(no.fit[1]),"_", no.fit[1]), ".rds"))
 
     #check if initial parameters set is working
     if(k == 1){

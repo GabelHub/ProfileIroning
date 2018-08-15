@@ -362,7 +362,7 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
       #define improvement variable
       improvement[k] <- 0
       for(j in 1:length(save.steepcliff[[k]])){
-        while(readRDS(paste0(homedir, "/Profile-Results/Status/status", which.par[k],"_", save.data[[k]][save.steepcliff[[k]][j], save.col.pl[[k]] + 1], ".rds")) != "done"){
+        while(file.exists(paste0(homedir, "/Profile-Results/Status/status", which.par[k],"_", save.data[[k]][save.steepcliff[[k]][j], save.col.pl[[k]] + 1], ".rds")) == FALSE){
           Sys.sleep(5)
         }
         res <- readRDS(paste0(homedir, "/Profile-Results/Fits/", which.par[k],"_", save.data[[k]][save.steepcliff[[k]][j], save.col.pl[[k]] + 1], ".rds"))

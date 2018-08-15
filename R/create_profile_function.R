@@ -209,3 +209,25 @@ create.profile <- function(which.par, par.names, range, fit.fn, do.not.fit = NUL
 
   return(all.res)
 }
+
+
+res <- create.profile(which.par = "lambda.cd4ref",
+                      par.names = parms.inits,
+                      range = list(seq(1e-2, 1e+0, length.out=5)),
+                      # range = list(seq(1e-2, 1e+0, length.out=100),
+                      #              seq(1e-6, 1e+6, length.out=100),
+                      #              seq(1e-1, 1e+2, length.out=100),
+                      #              seq(1e+0, 1e+2, length.out=100),
+                      #              seq(1e+0, 1e+4, length.out=100),
+                      #              seq(1e+3, 1e+4, length.out=100)),
+                      # rstartlow=c(-2,-6,-1,0,0,3)
+                      # rstarthigh=c(0,6,2,2,4,4)
+                      random.borders = cbind(c(1e-2,1e-6,1e-1,1e+0,1e+0,1e+3),
+                                             c(1e+0,1e+6,1e+2,1e+2,1e+4,1e+4)),
+                      fit.fn = ls2,
+                      homedir = getwd(),
+                      bind.old=TRUE,
+                      future.off = FALSE,
+                      optim.runs = 2,
+                      lowbound.i=lowbound,
+                      highbound.i=highbound)
