@@ -9,7 +9,7 @@
 #' @param optim.runs The number of times that each model will be fitted by \code{\link{optim}}. Default to 5.
 #' @param random.borders The ranges from which the random initial parameter conditions for all \code{optim.runs} larger than one are sampled. Can be either given as a vector containing the relative deviations for all parameters or as a matrix containing in its first column the lower and in its second column the upper border values. Parameters are uniformly sampled based on \code{\link{runif}}. Default to 1 (100\% deviation of all parameters). Alternatively, functions such as \code{\link{rnorm}}, \code{\link{rchisq}}, etc. can be used if the additional arguments are passed along as well.
 #' @param refit If TRUE, previously fitted ranges will be fitted again and results will be overwritten according to the value set in \code{save.rel.diff}. Default to FALSE. Works only if \code{delete.old} is set to FALSE.
-#' @param save.rel.diff A numeric value indicating when to overwrite a pre-existing result. Default to 0.01, which means that results get overwritten only if an improvement larger than 1\% of the pre-existing value is made.
+#' @param save.rel.diff A numeric value indicating a relative threshold when to overwrite a pre-existing result. Default to 0, which means that results get overwritten if an improvement is made.
 #' @param con.tol The absolute convergence tolerance of each fitting run (see Details). Default is set to 0.1.
 #' @param control.optim Control parameters passed along to \code{optim}. For more details, see \code{\link{optim}}.
 #' @param future.off Logical. If TRUE, \code{\link{future}} will not be used to calculate the results. Default to FALSE.
@@ -54,7 +54,7 @@
 #'                       x.vals = x.values,
 #'                       y.vals = y.values,
 #'                       sd.y = sd.y.values)
-create.profile <- function(which.par, par.names, range, fit.fn, do.not.fit = NULL, homedir = getwd(), optim.runs = 5, random.borders = 1, refit = FALSE, save.rel.diff = 0.01, con.tol = 0.1, control.optim = list(maxit = 1000), future.off = FALSE, bind.old = FALSE, delete.old = FALSE, ...){
+create.profile <- function(which.par, par.names, range, fit.fn, do.not.fit = NULL, homedir = getwd(), optim.runs = 5, random.borders = 1, refit = FALSE, save.rel.diff = 0, con.tol = 0.1, control.optim = list(maxit = 1000), future.off = FALSE, bind.old = FALSE, delete.old = FALSE, ...){
   #create storage directories
   create.directories(homedir = homedir)
 

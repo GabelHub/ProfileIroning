@@ -6,7 +6,7 @@
 \usage{
 point.profile(no.fit, parms, fit.fn, homedir = getwd(), optim.runs = 5,
   random.borders = 1, con.tol = 0.1, control.optim = list(maxit = 1000),
-  save.rel.diff = 0.01, ...)
+  save.rel.diff = 0, ...)
 }
 \arguments{
 \item{no.fit}{A named vector containing the values of all parameters that are not to be fitted.}
@@ -25,7 +25,7 @@ point.profile(no.fit, parms, fit.fn, homedir = getwd(), optim.runs = 5,
 
 \item{control.optim}{Control parameters passed along to \code{optim}. For more details, see \code{\link{optim}}.}
 
-\item{save.rel.diff}{A numeric value indicating when to overwrite a pre-existing result. Default to 0.01, which means that results get overwritten only if an improvement larger than 1\% of the pre-existing value is made.}
+\item{save.rel.diff}{A numeric value indicating when to overwrite a pre-existing result. Default to 0, which means that results get overwritten if an improvement is made.}
 
 \item{...}{Other parameters to be passed on to optim.}
 }

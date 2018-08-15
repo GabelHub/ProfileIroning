@@ -12,7 +12,7 @@
 #' @param refit If TRUE, previously fitted ranges will be fitted again and results will be overwritten according to the value set in \code{save.rel.diff}. Default to FALSE.
 #' @param con.tol The absolute convergence tolerance of each fitting run (see Details). Default is set to 0.1.
 #' @param control.optim Control parameters passed along to \code{optim}. For more details, see \code{\link{optim}}.
-#' @param save.rel.diff A numeric value indicating when to overwrite a pre-existing result. Default to 0.01, which means that results get overwritten only if an improvement larger than 1\% of the pre-existing value is made.
+#' @param save.rel.diff A numeric value indicating a relative threshold when to overwrite a pre-existing result. Default to 0, which means that results get overwritten if an improvement is made.
 #' @param future.off Logical. If TRUE, \code{\link{future}} will not be used to calculate the results. Default to FALSE.
 #' @param ... Additional parameters that can be passed along to \code{\link{future}} or \code{fit.fn}.
 #'
@@ -65,7 +65,7 @@
 #'                y.vals = y.values,
 #'                sd.y = sd.y.values)
 
-smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.01, do.not.fit = NULL, homedir = getwd(), optim.runs = 5, random.borders = 1, refit = F, con.tol = 0.1, control.optim = list(maxit = 1000), save.rel.diff = 0.01, future.off = F, ...){
+smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.01, do.not.fit = NULL, homedir = getwd(), optim.runs = 5, random.borders = 1, refit = F, con.tol = 0.1, control.optim = list(maxit = 1000), save.rel.diff = 0, future.off = F, ...){
 
   if( (length(which.par) > 1 || which.par[1] == "all.par") && is.null(do.not.fit) == FALSE){
     stop("Use 'do.not.fit' only with a single entry of 'which.par'!")

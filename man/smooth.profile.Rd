@@ -33,7 +33,7 @@ smooth.profile(which.par, fit.fn, threshold = "auto", spike.min = 0.01,
 
 \item{control.optim}{Control parameters passed along to \code{optim}. For more details, see \code{\link{optim}}.}
 
-\item{save.rel.diff}{A numeric value indicating when to overwrite a pre-existing result. Default to 0.01, which means that results get overwritten only if an improvement larger than 1\% of the pre-existing value is made.}
+\item{save.rel.diff}{A numeric value indicating a relative threshold when to overwrite a pre-existing result. Default to 0, which means that results get overwritten if an improvement is made.}
 
 \item{future.off}{Logical. If TRUE, \code{\link{future}} will not be used to calculate the results. Default to FALSE.}
 
