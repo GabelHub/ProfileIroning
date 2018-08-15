@@ -167,7 +167,23 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
       }
       #get problematic entries
       steepcliff <- which(sel.steepcliff > 0)
+      which.improved[[s]][-steepcliff] <- 0
+
       save.steepcliff[[s]] <- steepcliff
+      which.improved[[s]][-steepcliff] <- 0
+      for(k in steepcliff){
+        if(k == 1){
+          slct <- c(1,2)
+        }else if(k == nrow(save.data[[s]])){
+          slct <- c(k-1, k)
+        }else{
+          slct <- c(k-1, k, k +1)
+        }
+
+        if(sum(which.improved[[s]][slct]) == 0){
+          steepcliff <- steepcliff[-which(steepcliff == k)]
+        }
+      }
       print(paste0("Found ", length(steepcliff)," unsuitable value(s) in the profile (spike or difference to neighbouring points larger than ", format(cliff.min, digits = 2), ")."))
       print(data[steepcliff, col.pl + 1])
 
@@ -369,16 +385,16 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
         if(res[1] < save.data[[k]][save.steepcliff[[k]][j], 1]){
           save.data[[k]][save.steepcliff[[k]][j], ] <- res
           improvement[k] <- improvement[k] + 1
-          if(j == 1){
+          if(save.steepcliff[[k]][j] == 1){
             slct <- c(1,2)
-          }else if(j == nrow(save.data[[k]])){
-            slct <- c(j-1, j)
+          }else if(save.steepcliff[[k]][j] == nrow(save.data[[k]])){
+            slct <- c(save.steepcliff[[k]][j]-1, save.steepcliff[[k]][j])
           }else{
-            slct <- c(j-1, j, j +1)
+            slct <- c(save.steepcliff[[k]][j]-1, save.steepcliff[[k]][j], save.steepcliff[[k]][j] +1)
           }
           which.improved[[k]][slct] <- 1
         }else{
-          which.improved[[k]][j] <- 0
+          which.improved[[k]][save.steepcliff[[k]][j]] <- 0
         }
       }
 
