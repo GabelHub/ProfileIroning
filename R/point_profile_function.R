@@ -41,6 +41,12 @@ point.profile <- function(no.fit,
 
   #sink output to a log file
   sink(paste0(homedir, "/Profile-Results/LogFiles/Log", paste0(names(no.fit[1]),"_", no.fit[1]), ".txt"), split = TRUE)
+
+  #delete status file if present
+  if(file.exists(paste0(homedir, "/Profile-Results/Status/status", paste0(names(no.fit[1]),"_", no.fit[1]), ".rds"))){
+    file.remove(paste0(homedir, "/Profile-Results/Status/status", paste0(names(no.fit[1]),"_", no.fit[1]), ".rds"))
+  }
+
   fit.vector <- parms[-which(names(parms) %in% names(no.fit))]
 
   all.par <- c(no.fit, fit.vector)
