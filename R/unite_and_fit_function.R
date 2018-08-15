@@ -30,7 +30,7 @@ unite.and.fit <- function(par, no.fit, par.names, fit.fn, ...) {
 
 
   # call user defined function while passing on user defined variables
-  diff <- do.call(fit.fn, c(list(parms = total.par), dots))
+  diff <- R.utils::doCall(fit.fn, args = c(list(parms = total.par), dots))
 
   return(as.numeric(diff))
 }

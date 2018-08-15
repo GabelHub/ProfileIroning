@@ -6,7 +6,7 @@
 #' @param fit.fn A cost function. Has to take the complete parameter vector as an input (needs to be names \code{parms}) and must return the corresponding negative log-likelihood (-2LL, see Burnham and Anderson 2002).
 #' @param homedir The directory to which the results should be saved to.
 #' @param optim.runs The number of times that each model will be fitted by \code{\link{optim}}. Default to 5.
-#' @param random.borders The ranges from which the random initial parameter conditions for all \code{optim.runs} larger than one are sampled. Can be either given as a vector containing the relative deviations for all parameters or as a matrix containing in its first column the lower and in its second column the upper border values. Parameters are uniformly sampled based on \code{\link{runif}}. Default to 1 (100\% deviation of all parameters).
+#' @param random.borders The ranges from which the random initial parameter conditions for all \code{optim.runs} larger than one are sampled. Can be either given as a vector containing the relative deviations for all parameters or as a matrix containing in its first column the lower and in its second column the upper border values. Parameters are uniformly sampled based on \code{\link{runif}}. Default to 1 (100\% deviation of all parameters). Alternatively, functions such as \code{\link{rnorm}}, \code{\link{rchisq}}, etc. can be used if the additional arguments are passed along as well.
 #' @param con.tol The absolute convergence tolerance of each fitting run (see Details). Default is set to 0.1.
 #' @param control.optim Control parameters passed along to \code{optim}. For more details, see \code{\link{optim}}.
 #' @param save.rel.diff A numeric value indicating when to overwrite a pre-existing result. Default to 0.01, which means that results get overwritten only if an improvement larger than 1\% of the pre-existing value is made.
@@ -84,6 +84,7 @@ point.profile <- function(no.fit,
       works <- FALSE
       while(works == FALSE){
         if(is.vector(random.borders)){
+
           if(length(random.borders) == 1){
             random.min <- fit.vector - random.borders*abs(fit.vector)
             random.max <- fit.vector + random.borders*abs(fit.vector)
@@ -92,7 +93,12 @@ point.profile <- function(no.fit,
             random.max <- fit.vector + random.borders[-which(names(parms) %in% names(no.fit))]*abs(fit.vector)
           }
 
+          ran.par <- stats::runif(n = length(fit.vector),
+                                  min = random.min,
+                                  max = random.max)
+
         }else if(is.matrix(random.borders)){
+
           if(nrow(random.borders) == 1){
             random.min <- rep(random.borders[1,1], length(fit.vector))
             random.max <- rep(random.borders[1,2], length(fit.vector))
@@ -100,12 +106,16 @@ point.profile <- function(no.fit,
             random.min <- random.borders[-which(names(parms) %in% names(no.fit)),1]
             random.max <- random.borders[-which(names(parms) %in% names(no.fit)),2]
           }
+
+          ran.par <- stats::runif(n = length(fit.vector),
+                                  min = random.min,
+                                  max = random.max)
+
+        }else if(is.function(random.borders)){
+          ran.par <- R.utils::doCall(random.borders, args = c(list(n = length(fit.vector)), list(...)))
         }else{
-          stop("random.borders must be a number, a vector or a matrix!")
+          stop("random.borders must be a number, a vector, a matrix or a function!")
         }
-        ran.par <- stats::runif(n = length(fit.vector),
-                                min = random.min,
-                                max = random.max)
         names(ran.par) <- names(fit.vector)
         works <- is.finite(unite.and.fit(par = ran.par,
                                          no.fit = no.fit,
@@ -216,3 +226,10 @@ point.profile <- function(no.fit,
 
   return(result)
 }
+
+point.profile(no.fit = c(p1 = 1),parms = inits, fit.fn = cost_function,
+              random.borders = rchisq,
+              x.vals = x.values,
+              y.vals = y.values,
+              sd.y = sd.y.values,
+              df = c(10,2,3,4))

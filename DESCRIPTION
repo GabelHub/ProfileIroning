@@ -14,6 +14,7 @@ RoxygenNote: 6.0.1
 Imports: future,
     graphics,
     stats,
-    utils
+    utils,
+    R.utils
 Suggests: testthat,
     future.batchtools
