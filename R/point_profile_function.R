@@ -65,9 +65,6 @@ point.profile <- function(no.fit,
     #print number of successful runs
     cat(paste0("\nFitting run # ", k, "\n"))
 
-    # update status file to number of current fit run
-    # saveRDS(object = k, file = paste0(homedir, "/Profile-Results/Status/status", paste0(names(no.fit[1]),"_", no.fit[1]), ".rds"))
-
     #check if initial parameters set is working
     if(k == 1){
       #take the parameter combination from the currently best model
@@ -225,15 +222,7 @@ point.profile <- function(no.fit,
 
 
   }
-
-  #update the status file that corresponds with this model for the progression of the main routine
-  status <-"done"
-  saveRDS(object = status,
-          file = paste0(homedir,
-                        "/Profile-Results/Status/status",
-                        paste0(names(no.fit[1]),"_", no.fit[1]),
-                        ".rds"))
-  cat("\nStatus file updated. Fitting done.\n")
+  cat("\nFitting done.\n")
   sink()
 
   return(result)

@@ -116,6 +116,7 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
   save.col.pl <- list()
 
   while(any(improvement != 0)){
+    future.list <- list()
     print(paste0("ITERATION ", iteration))
     for(s in which(improvement != 0)){
       #get parameter range
@@ -213,60 +214,21 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
             names(params.test2) <- names(data[k + 1,-1])
           }
 
-          works <- is.finite(unite.and.fit(par = params.test[-col.pl],
-                                           no.fit = fixed.par,
-                                           par.names = names(data)[2:ncol(data)],
-                                           fit.fn = fit.fn,
-                                           ...))
-          #if parameter combination failed, try 100 times to create a working one by jittering
-          if(works == FALSE){
-            #save old parameter set
-            params.base <- params.test
-            #define count variable
-            count.test <- 0
-            while(works == FALSE & count.test < 100){
-
-              if(is.vector(random.borders)){
-                random.min <- params.test - random.borders*abs(params.test)
-                random.max <- params.test + random.borders*abs(params.test)
-              }else if(is.matrix(random.borders)){
-                if(nrow(random.borders) == 1){
-                  random.min <- rep(random.borders[1,1], length(params.test))
-                  random.max <- rep(random.borders[1,2], length(params.test))
-                }else{
-                  random.min <- random.borders[,1]
-                  random.max <- random.borders[,2]
-                }
-              }else{
-                stop("random.borders must be a number, a vector or a matrix!")
-              }
-
-              #create new parameter set for testing
-              params.test <- stats::runif(n = length(params.test),
-                                          min = random.min,
-                                          max = random.max)
-              names(params.test) <- names(params.base)
-              #test the set
-              works <- is.finite(unite.and.fit(par = params.test[-col.pl],
-                                               no.fit = fixed.par,
-                                               par.names = names(data)[2:ncol(data)],
-                                               fit.fn = fit.fn,
-                                               ...))
-              #update count variable
-              count.test <- count.test + 1
-            }
-          }
-          #run optimization only if parameter combination works
-          if(works == TRUE){
-
-            # #optimise
-            # p.scale <- par.scales(par = abs(params.test),
-            #                       scale = abs(params.test),
-            #                       fix = length(params.test))
-
-            if(future.off == TRUE){
+          if(future.off == TRUE){
+            point.profile(no.fit = fixed.par,
+                          parms = params.test,
+                          fit.fn = fit.fn,
+                          homedir = homedir,
+                          optim.runs = optim.runs,
+                          random.borders = random.borders,
+                          con.tol = con.tol,
+                          control.optim = control.optim,
+                          parscale.parameters = parscale.pars,
+                          save.rel.diff = save.rel.diff,
+                          ...)
+            if(cliff == 12){
               point.profile(no.fit = fixed.par,
-                            parms = params.test,
+                            parms = params.test2,
                             fit.fn = fit.fn,
                             homedir = homedir,
                             optim.runs = optim.runs,
@@ -276,115 +238,70 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
                             parscale.parameters = parscale.pars,
                             save.rel.diff = save.rel.diff,
                             ...)
+            }
+          }else{
+            if(cliff == 12){
+              future.list <- c(future.list, list(future::future({point.profile(no.fit = fixed.par,
+                                                                              parms = params.test,
+                                                                              fit.fn = fit.fn,
+                                                                              homedir = homedir,
+                                                                              optim.runs = optim.runs,
+                                                                              random.borders = random.borders,
+                                                                              con.tol = con.tol,
+                                                                              control.optim = control.optim,
+                                                                              parscale.parameters = parscale.pars,
+                                                                              save.rel.diff = save.rel.diff,
+                                                                              ...)
+                                                                point.profile(no.fit = fixed.par,
+                                                                              parms = params.test2,
+                                                                              fit.fn = fit.fn,
+                                                                              homedir = homedir,
+                                                                              optim.runs = optim.runs,
+                                                                              random.borders = random.borders,
+                                                                              con.tol = con.tol,
+                                                                              control.optim = control.optim,
+                                                                              parscale.parameters = parscale.pars,
+                                                                              save.rel.diff = save.rel.diff,
+                                                                              ...)},
+                                                                label = paste0(which.par[s], "_", fixed.par[1]),
+                                                                ...)))
             }else{
-              future::future(point.profile(no.fit = fixed.par,
-                                           parms = params.test,
-                                           fit.fn = fit.fn,
-                                           homedir = homedir,
-                                           optim.runs = optim.runs,
-                                           random.borders = random.borders,
-                                           con.tol = con.tol,
-                                           control.optim = control.optim,
-                                           parscale.parameters = parscale.pars,
-                                           save.rel.diff = save.rel.diff,
-                                           ...),
-                             label = paste0(which.par[s], "_", fixed.par[1]),
-                             ...)
+              future.list <- c(future.list, list(future::future(point.profile(no.fit = fixed.par,
+                                                                              parms = params.test,
+                                                                              fit.fn = fit.fn,
+                                                                              homedir = homedir,
+                                                                              optim.runs = optim.runs,
+                                                                              random.borders = random.borders,
+                                                                              con.tol = con.tol,
+                                                                              control.optim = control.optim,
+                                                                              parscale.parameters = parscale.pars,
+                                                                              save.rel.diff = save.rel.diff,
+                                                                              ...),
+                                                                label = paste0(which.par[s], "_", fixed.par[1]),
+                                                                ...)))
             }
           }
-          #if the value is spiked, try parameter combination of the right side
-          if(cliff == 12){
-
-            #try and see if parameter combination work
-            works <- is.finite(unite.and.fit(par = params.test2[-col.pl],
-                                             no.fit = fixed.par,
-                                             par.names = names(data)[2:ncol(data)],
-                                             fit.fn = fit.fn,
-                                             ...))
-            #if parameter combination failed, try 100 times to create a working one by jittering
-            if(works == FALSE){
-              #save old parameter set
-              params.base <- params.test2
-              #define count variable
-              count.test <- 0
-              while(works == FALSE & count.test < 100){
-                #create new parameter set for testing
-                if(is.vector(random.borders)){
-                  random.min <- params.test2 - random.borders*abs(params.test2)
-                  random.max <- params.test2 + random.borders*abs(params.test2)
-                }else if(is.matrix(random.borders)){
-                  if(nrow(random.borders) == 1){
-                    random.min <- rep(random.borders[1,1], length(params.test2))
-                    random.max <- rep(random.borders[1,2], length(params.test2))
-                  }else{
-                    random.min <- random.borders[,1]
-                    random.max <- random.borders[,2]
-                  }
-                }else{
-                  stop("random.borders must be a number, a vector or a matrix!")
-                }
-
-                #create new parameter set for testing
-                params.test <- stats::runif(n = length(params.test2),
-                                            min = random.min,
-                                            max = random.max)
-                names(params.test2) <- names(params.base)
-                #test the set
-                works <- is.finite(unite.and.fit(par = params.test2[-col.pl],
-                                                 no.fit = fixed.par,
-                                                 par.names = names(data)[2:ncol(data)],
-                                                 fit.fn = fit.fn,
-                                                 ...))
-                #update count variable
-                count.test <- count.test + 1
-              }
-            }
-            #run optimization only if parameter combination works
-            if(works == TRUE){
-
-              if(future.off == TRUE){
-                point.profile(no.fit = fixed.par,
-                              parms = params.test2,
-                              fit.fn = fit.fn,
-                              homedir = homedir,
-                              optim.runs = optim.runs,
-                              random.borders = random.borders,
-                              con.tol = con.tol,
-                              control.optim = control.optim,
-                              parscale.parameters = parscale.pars,
-                              save.rel.diff = save.rel.diff,
-                              ...)
-              }else{
-                future::future(point.profile(no.fit = fixed.par,
-                                             parms = params.test2,
-                                             fit.fn = fit.fn,
-                                             homedir = homedir,
-                                             optim.runs = optim.runs,
-                                             random.borders = random.borders,
-                                             con.tol = con.tol,
-                                             control.optim = control.optim,
-                                             parscale.parameters = parscale.pars,
-                                             save.rel.diff = save.rel.diff,
-                                             ...),
-                               label = paste0(which.par[s], "_", fixed.par[1]),
-                               ...)
-              }
-
-            }
-          }
-
         }
       }
-
     }
+
+
     #read in data
+    print.wait <- TRUE
+    for(wff in 1:length(future.list)){
+      while(!resolved(future.list[wff])){
+        if(print.wait){
+          print("Waiting until all futures are resolved ...")
+          print.wait <- FALSE
+        }
+        Sys.sleep(5)
+      }
+    }
+
     for(k in which(improvement != 0)){
       #define improvement variable
       improvement[k] <- 0
       for(j in 1:length(save.steepcliff[[k]])){
-        while(file.exists(paste0(homedir, "/Profile-Results/Status/status", which.par[k],"_", save.data[[k]][save.steepcliff[[k]][j], save.col.pl[[k]] + 1], ".rds")) == FALSE){
-          Sys.sleep(5)
-        }
         res <- readRDS(paste0(homedir, "/Profile-Results/Fits/", which.par[k],"_", save.data[[k]][save.steepcliff[[k]][j], save.col.pl[[k]] + 1], ".rds"))
         if(res[1] < save.data[[k]][save.steepcliff[[k]][j], 1]){
           save.data[[k]][save.steepcliff[[k]][j], ] <- res
@@ -403,10 +320,10 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
       }
 
       if(improvement[k] > 0){
-        print(paste0("Improved ", improvement[k], " out of ", length(steepcliff), " profile values for parameter ",which.par[s],"."))
+        print(paste0("Improved ", improvement[k], " out of ", length(save.steepcliff[[k]]), " profile values for parameter ",which.par[k],"."))
         saveRDS(save.data[[k]], paste0(homedir, "/Profile-Results/Tables/", which.par[k], ".rds"))
       }else{
-        print(paste0("Improved ", improvement[k], " out of ", length(steepcliff), " profile values for parameter ",which.par[s],". Smoothing terminated for this parameter."))
+        print(paste0("Improved ", improvement[k], " out of ", length(save.steepcliff[[k]]), " profile values for parameter ",which.par[k],". Smoothing terminated for this parameter."))
       }
 
     }

@@ -79,6 +79,7 @@ create.profile <- function(which.par, par.names, range, fit.fn, bind.old = FALSE
     }
   }
   overall.min <- Inf
+  future.list <- list()
   for(i in 1:length(index)){
     print(paste0("Submitting fits for parameter ",names(par.names)[index[i]]))
     range.x <- range[[i]]
@@ -102,24 +103,33 @@ create.profile <- function(which.par, par.names, range, fit.fn, bind.old = FALSE
                         save.rel.diff = save.rel.diff,
                         ...)
         }else{
-          future::future(point.profile(no.fit = nofit,
-                                       parms = par.names,
-                                       fit.fn = fit.fn,
-                                       homedir = homedir,
-                                       optim.runs = optim.runs,
-                                       random.borders = random.borders,
-                                       con.tol = con.tol,
-                                       control.optim = control.optim,
-                                       parscale.pars = parscale.pars,
-                                       save.rel.diff = save.rel.diff,
-                                       ...),
-                         label = paste0(names(par.names)[index[i]], "_", range.x[j]),
-                         ...)
+          future.list <- c(future.list, list(future::future(point.profile(no.fit = nofit,
+                                                                          parms = par.names,
+                                                                          fit.fn = fit.fn,
+                                                                          homedir = homedir,
+                                                                          optim.runs = optim.runs,
+                                                                          random.borders = random.borders,
+                                                                          con.tol = con.tol,
+                                                                          control.optim = control.optim,
+                                                                          parscale.pars = parscale.pars,
+                                                                          save.rel.diff = save.rel.diff,
+                                                                          ...),
+                                                            label = paste0(names(par.names)[index[i]], "_", range.x[j]),
+                                                            ...)))
         }
-
-
-
       }
+    }
+  }
+
+  #read in data
+  print.wait <- TRUE
+  for(wff in 1:length(future.list)){
+    while(!resolved(future.list[wff])){
+      if(print.wait){
+        print("Waiting until all futures are resolved ...")
+        print.wait <- FALSE
+      }
+      Sys.sleep(5)
     }
   }
 

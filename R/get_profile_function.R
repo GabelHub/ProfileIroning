@@ -4,7 +4,6 @@
 #' @param which.par The names of the parameter that the profile should be returned for.
 #' @param range A numeric vector determining the values for which the profile should be calculated. Alternatively, setting it to "get.all" retrieves all available profile values and binds them together.
 #' @param homedir The directory in which the folder \code{"Profile-Results"} is found. Default to \code{\link{getwd}}().
-#' @param wait Logical. If true, \code{get.profile} will wait if a certain profile value has not been fitted yet (i.e. the corresponding status file is not equal to "done").
 #' @param delete.old Logical. If TRUE, the individual point-wise fits created by \code{\link{point.profile}} will be deleted after using them. Default to FALSE.
 #' @param save.it Logical. If TRUE (default), the gathered data will be bound and saved in the "Profile-Results/Tables/" folder.
 #'
@@ -28,7 +27,7 @@
 #' #retrieve the calculated profile
 #' res <- get.profile(which.par = "get.p1", range = seq(0,5,1))
 
-get.profile <- function(which.par, range, homedir = getwd(), wait = FALSE, delete.old = FALSE, save.it = TRUE){
+get.profile <- function(which.par, range, homedir = getwd(), delete.old = FALSE, save.it = TRUE){
 
   if(range[1] == "get.all"){
     range <- c()
@@ -44,22 +43,9 @@ get.profile <- function(which.par, range, homedir = getwd(), wait = FALSE, delet
   res <- c()
 
   for(i in 1:length(range)){
-    if(wait == FALSE){
-      res <- rbind(res, readRDS(paste0(homedir, "/Profile-Results/Fits/", which.par,"_", range[i], ".rds")))
-    }else{
-      print.wait <-  TRUE
-      while(file.exists(paste0(homedir, "/Profile-Results/Status/status", which.par,"_", range[i], ".rds")) == FALSE || file.exists(paste0(homedir, "/Profile-Results/Fits/", which.par,"_", range[i], ".rds")) == FALSE){
-        if(print.wait){
-          print(paste0("Waiting for ", which.par,"_", range[i], "..."))
-          print.wait <- FALSE
-        }
-        Sys.sleep(5)
-      }
-      res <- rbind(res, readRDS(paste0(homedir, "/Profile-Results/Fits/", which.par,"_", range[i], ".rds")))
-      if(delete.old == TRUE){
-        file.remove(paste0(homedir, "/Profile-Results/Fits/", which.par,"_", range[i], ".rds"))
-      }
-
+    res <- rbind(res, readRDS(paste0(homedir, "/Profile-Results/Fits/", which.par,"_", range[i], ".rds")))
+    if(delete.old == TRUE){
+      file.remove(paste0(homedir, "/Profile-Results/Fits/", which.par,"_", range[i], ".rds"))
     }
 
   }
