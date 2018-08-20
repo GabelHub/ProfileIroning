@@ -4,6 +4,8 @@
 #' @param par.names A vector containing the names and initial values for all available parameters.
 #' @param range A list containing the respective ranges for which the profile should be calculated.
 #' @param fit.fn A cost function. Has to take the complete parameter vector as an input (needs to be names \code{parms}) and must return the corresponding negative log-likelihood (-2LL, see Burnham and Anderson 2002).
+#' @param bind.old Logical. If TRUE, previously calculated values will also be added to the profile if available. Default to FALSE.
+#' @param delete.old Logical. If TRUE, the individual point-wise fits created by \code{\link{point.profile}} will be deleted after using them. Default to FALSE.
 #' @param do.not.fit A named vector containing the values of the parameters that should not be fitted. Default to NULL.
 #' @param homedir The directory to which the results should be saved to.
 #' @param optim.runs The number of times that each model will be fitted by \code{\link{optim}}. Default to 5.
@@ -12,9 +14,8 @@
 #' @param save.rel.diff A numeric value indicating a relative threshold when to overwrite a pre-existing result. Default to 0, which means that results get overwritten if an improvement is made.
 #' @param con.tol The absolute convergence tolerance of each fitting run (see Details). Default is set to 0.1.
 #' @param control.optim Control parameters passed along to \code{optim}. For more details, see \code{\link{optim}}.
+#' @param parscale.pars Logical. If TRUE (default), the \code{parscale} option will be used when fitting with \code{\link{optim}}. This is helpful, if the parameter values are on different scales.
 #' @param future.off Logical. If TRUE, \code{\link{future}} will not be used to calculate the results. Default to FALSE.
-#' @param bind.old Logical. If TRUE, previously calculated values will also be added to the profile if available. Default to FALSE.
-#' @param delete.old Logical. If TRUE, the individual point-wise fits created by \code{\link{point.profile}} will be deleted after using them. Default to FALSE.
 #' @param ... Additional parameters that can be passed along to \code{\link{future}} or \code{fit.fn}.
 #' @return A list containing the respective profile values for every specified parameter.
 #' @export
@@ -54,7 +55,7 @@
 #'                       x.vals = x.values,
 #'                       y.vals = y.values,
 #'                       sd.y = sd.y.values)
-create.profile <- function(which.par, par.names, range, fit.fn, do.not.fit = NULL, homedir = getwd(), optim.runs = 5, random.borders = 1, refit = FALSE, save.rel.diff = 0, con.tol = 0.1, control.optim = list(maxit = 1000), future.off = FALSE, bind.old = FALSE, delete.old = FALSE, ...){
+create.profile <- function(which.par, par.names, range, fit.fn, bind.old = FALSE, delete.old = FALSE, do.not.fit = NULL, homedir = getwd(), optim.runs = 5, random.borders = 1, refit = FALSE, save.rel.diff = 0, con.tol = 0.1, control.optim = list(maxit = 1000), parscale.pars = TRUE, future.off = FALSE, ...){
   #create storage directories
   create.directories(homedir = homedir)
 
@@ -97,6 +98,7 @@ create.profile <- function(which.par, par.names, range, fit.fn, do.not.fit = NUL
                         random.borders = random.borders,
                         con.tol = con.tol,
                         control.optim = control.optim,
+                        parscale.pars = parscale.pars,
                         save.rel.diff = save.rel.diff,
                         ...)
         }else{
@@ -108,6 +110,7 @@ create.profile <- function(which.par, par.names, range, fit.fn, do.not.fit = NUL
                                        random.borders = random.borders,
                                        con.tol = con.tol,
                                        control.optim = control.optim,
+                                       parscale.pars = parscale.pars,
                                        save.rel.diff = save.rel.diff,
                                        ...),
                          label = paste0(names(par.names)[index[i]], "_", range.x[j]),
@@ -191,7 +194,7 @@ create.profile <- function(which.par, par.names, range, fit.fn, do.not.fit = NUL
   }
 
   #save plots
-  grDevices::pdf(file = paste0(homedir, "/Profile-Results/Figures/Profiles.pdf"),
+  grDevices::pdf(file = paste0(homedir, "/Profile-Results/Figures/RawProfiles.pdf"),
                  width  = 4*ncols,
                  height = 4*nrows,
                  useDingbats = F)

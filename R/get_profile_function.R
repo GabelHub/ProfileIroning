@@ -53,7 +53,7 @@ get.profile <- function(which.par, range, homedir = getwd(), wait = FALSE, delet
           print(paste0("Waiting for ", which.par,"_", range[i], "..."))
           print.wait <- FALSE
         }
-        Sys.sleep(10)
+        Sys.sleep(5)
       }
       res <- rbind(res, readRDS(paste0(homedir, "/Profile-Results/Fits/", which.par,"_", range[i], ".rds")))
       if(delete.old == TRUE){

@@ -9,6 +9,7 @@
 #' @param random.borders The ranges from which the random initial parameter conditions for all \code{optim.runs} larger than one are sampled. Can be either given as a vector containing the relative deviations for all parameters or as a matrix containing in its first column the lower and in its second column the upper border values. Parameters are uniformly sampled based on \code{\link{runif}}. Default to 1 (100\% deviation of all parameters). Alternatively, functions such as \code{\link{rnorm}}, \code{\link{rchisq}}, etc. can be used if the additional arguments are passed along as well.
 #' @param con.tol The absolute convergence tolerance of each fitting run (see Details). Default is set to 0.1.
 #' @param control.optim Control parameters passed along to \code{optim}. For more details, see \code{\link{optim}}.
+#' @param parscale.pars Logical. If TRUE (default), the \code{parscale} option will be used when fitting with \code{\link{optim}}. This is helpful, if the parameter values are on different scales.
 #' @param save.rel.diff A numeric value indicating when to overwrite a pre-existing result. Default to 0, which means that results get overwritten if an improvement is made.
 #' @param ... Other parameters to be passed on to optim.
 #'
@@ -36,6 +37,7 @@ point.profile <- function(no.fit,
                           random.borders = 1,
                           con.tol = 0.1,
                           control.optim = list(maxit = 1000),
+                          parscale.pars = TRUE,
                           save.rel.diff = 0,
                           ...) {
 
@@ -149,6 +151,10 @@ point.profile <- function(no.fit,
       runs = runs + 1
 
       #run optim
+      if(parscale.pars == TRUE){
+        control.optim <- c(control.optim,
+                           list(parscale = parscale.parameters(par = opt.par, scale = 0.1*abs(opt.par))))
+      }
       opt <- stats::optim(par = opt.par,
                           fn = unite.and.fit,
                           no.fit = no.fit,
@@ -232,3 +238,14 @@ point.profile <- function(no.fit,
 
   return(result)
 }
+
+
+smooth.profile(which.par = "beta",
+               random.borders = cbind(c(1e-2,1e-4,1e0,5,1,1000),
+                                      c(1e+0,1e-2,1e+1,20,10,1500)),
+               fit.fn = ls2,
+               homedir = getwd(),
+               future.off = TRUE,
+               optim.runs = 3,
+               lowbound.i=lowbound,
+               highbound.i=highbound)

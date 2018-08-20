@@ -4,10 +4,11 @@
 \alias{create.profile}
 \title{Calculating the Profile Likelihood}
 \usage{
-create.profile(which.par, par.names, range, fit.fn, do.not.fit = NULL,
-  homedir = getwd(), optim.runs = 5, random.borders = 1, refit = FALSE,
-  save.rel.diff = 0, con.tol = 0.1, control.optim = list(maxit = 1000),
-  future.off = FALSE, bind.old = FALSE, delete.old = FALSE, ...)
+create.profile(which.par, par.names, range, fit.fn, bind.old = FALSE,
+  delete.old = FALSE, do.not.fit = NULL, homedir = getwd(),
+  optim.runs = 5, random.borders = 1, refit = FALSE, save.rel.diff = 0,
+  con.tol = 0.1, control.optim = list(maxit = 1000), parscale.pars = TRUE,
+  future.off = FALSE, ...)
 }
 \arguments{
 \item{which.par}{Name of the parameter that a profile should be obtained for. If multiple profiles are supposed to be calculated, a vector can be passed along as well. Alternatively, supplying "all.par" calculates the profiles for all available parameters.}
@@ -17,6 +18,10 @@ create.profile(which.par, par.names, range, fit.fn, do.not.fit = NULL,
 \item{range}{A list containing the respective ranges for which the profile should be calculated.}
 
 \item{fit.fn}{A cost function. Has to take the complete parameter vector as an input (needs to be names \code{parms}) and must return the corresponding negative log-likelihood (-2LL, see Burnham and Anderson 2002).}
+
+\item{bind.old}{Logical. If TRUE, previously calculated values will also be added to the profile if available. Default to FALSE.}
+
+\item{delete.old}{Logical. If TRUE, the individual point-wise fits created by \code{\link{point.profile}} will be deleted after using them. Default to FALSE.}
 
 \item{do.not.fit}{A named vector containing the values of the parameters that should not be fitted. Default to NULL.}
 
@@ -34,11 +39,9 @@ create.profile(which.par, par.names, range, fit.fn, do.not.fit = NULL,
 
 \item{control.optim}{Control parameters passed along to \code{optim}. For more details, see \code{\link{optim}}.}
 
+\item{parscale.pars}{Logical. If TRUE (default), the \code{parscale} option will be used when fitting with \code{\link{optim}}. This is helpful, if the parameter values are on different scales.}
+
 \item{future.off}{Logical. If TRUE, \code{\link{future}} will not be used to calculate the results. Default to FALSE.}
-
-\item{bind.old}{Logical. If TRUE, previously calculated values will also be added to the profile if available. Default to FALSE.}
-
-\item{delete.old}{Logical. If TRUE, the individual point-wise fits created by \code{\link{point.profile}} will be deleted after using them. Default to FALSE.}
 
 \item{...}{Additional parameters that can be passed along to \code{\link{future}} or \code{fit.fn}.}
 }

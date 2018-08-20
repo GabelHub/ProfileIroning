@@ -9,9 +9,9 @@
 #' @param homedir The directory to which the results should be saved to. Default to \code{\link{getwd}}().
 #' @param optim.runs The number of times that each model will be fitted by \code{\link{optim}}. Default to 5.
 #' @param random.borders The ranges from which the random initial parameter conditions for all \code{optim.runs} larger than one are sampled. Can be either given as a vector containing the relative deviations for all parameters or as a matrix containing in its first column the lower and in its second column the upper border values. Parameters are uniformly sampled based on \code{\link{runif}}. Default to 1 (100\% deviation of all parameters). Alternatively, functions such as \code{\link{rnorm}}, \code{\link{rchisq}}, etc. can be used if the additional arguments are passed along as well.
-#' @param refit If TRUE, previously fitted ranges will be fitted again and results will be overwritten according to the value set in \code{save.rel.diff}. Default to FALSE.
 #' @param con.tol The absolute convergence tolerance of each fitting run (see Details). Default is set to 0.1.
 #' @param control.optim Control parameters passed along to \code{optim}. For more details, see \code{\link{optim}}.
+#' @param parscale.pars Logical. If TRUE (default), the \code{parscale} option will be used when fitting with \code{\link{optim}}. This is helpful, if the parameter values are on different scales.
 #' @param save.rel.diff A numeric value indicating a relative threshold when to overwrite a pre-existing result. Default to 0, which means that results get overwritten if an improvement is made.
 #' @param future.off Logical. If TRUE, \code{\link{future}} will not be used to calculate the results. Default to FALSE.
 #' @param ... Additional parameters that can be passed along to \code{\link{future}} or \code{fit.fn}.
@@ -65,7 +65,7 @@
 #'                y.vals = y.values,
 #'                sd.y = sd.y.values)
 
-smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.01, do.not.fit = NULL, homedir = getwd(), optim.runs = 5, random.borders = 1, refit = F, con.tol = 0.1, control.optim = list(maxit = 1000), save.rel.diff = 0, future.off = F, ...){
+smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.01, do.not.fit = NULL, homedir = getwd(), optim.runs = 5, random.borders = 1, con.tol = 0.1, control.optim = list(maxit = 1000), parscale.pars = TRUE, save.rel.diff = 0, future.off = F, ...){
 
   if( (length(which.par) > 1 || which.par[1] == "all.par") && is.null(do.not.fit) == FALSE){
     stop("Use 'do.not.fit' only with a single entry of 'which.par'!")
@@ -273,6 +273,7 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
                             random.borders = random.borders,
                             con.tol = con.tol,
                             control.optim = control.optim,
+                            parscale.parameters = parscale.pars,
                             save.rel.diff = save.rel.diff,
                             ...)
             }else{
@@ -284,6 +285,7 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
                                            random.borders = random.borders,
                                            con.tol = con.tol,
                                            control.optim = control.optim,
+                                           parscale.parameters = parscale.pars,
                                            save.rel.diff = save.rel.diff,
                                            ...),
                              label = paste0(which.par[s], "_", fixed.par[1]),
@@ -349,6 +351,7 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
                               random.borders = random.borders,
                               con.tol = con.tol,
                               control.optim = control.optim,
+                              parscale.parameters = parscale.pars,
                               save.rel.diff = save.rel.diff,
                               ...)
               }else{
@@ -360,6 +363,7 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
                                              random.borders = random.borders,
                                              con.tol = con.tol,
                                              control.optim = control.optim,
+                                             parscale.parameters = parscale.pars,
                                              save.rel.diff = save.rel.diff,
                                              ...),
                                label = paste0(which.par[s], "_", fixed.par[1]),

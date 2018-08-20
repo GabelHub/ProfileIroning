@@ -1,0 +1,58 @@
+#' A Fix for Parscale in Optim
+#'
+#' This function is designed to use the built-in option \code{parscale} in \code{\link{optim}} with absolute scaling values.
+#'
+#' @param par A vector containing the values of the original parameters.
+#' @param scale A vector containing the corresponding absolute scaling values that will be used during the first steps in \code{\link{optim}}.
+#' @param fix Integer containing the index of the parameter that will be scaled by 10\% of its original value, meaning the corresponding entry in scale will be overwritten (\code{parscale} in \code{\link{optim}} needs one value like this). Default to 1.
+#'
+#' @return A vector that can be used to scale \code{parscale} in \code{\link{optim}} accordingly.
+#' @export
+#'
+#' @examples
+#' test.func<-function(x){
+#' print(x)
+#' 3*x[1]+4*x[2]
+#' }
+#'
+#' pars <- c(1, 1000, 10)
+#' scaling <- c(0.1, 3000, 10)
+#'
+#' p.scale <- parscale.parameters(par = pars, scale = scaling)
+#'
+#' optim(par = pars, fn = test.func, control = list(maxit = 10, parscale = p.scale, trace = TRUE))
+#'
+parscale.parameters <- function(par, scale, fix = 1){
+  #check if length of scale is equal to par
+  if(length(par) !=  length(scale)){
+    print("Incorrect length")
+    return(NA)
+  }
+  #if one of the changes is smaller than 10% of its original value the fixed value might be neglected
+  if(sum( (scale - 0.1*par)<0 ) > 0){
+    print("Warning: One of the changes is smaller than 10% of the original value")
+    stop()
+  }
+
+  #parscale fixes the larged par/parscale value to deviate only 10 percent, others can then vary
+  #get fixed and maximal value
+  fix.value <- par[fix]
+  if(fix.value == 0){
+    fix.value <- 1
+  }
+
+  max.value <- abs(par[which.max(abs(par))[1]])
+  if(max.value == 0){
+    print("Warning: Vector contains only zeroes. Scaling is set to a default of 1.")
+    max.value <- 1
+  }
+
+  #create storage vector
+  par.scale <- rep(0, length(par))
+
+  #fill in scaling vector
+  par.scale <- scale/(0.1 * fix.value * max.value)
+  par.scale[fix] <- 1 / max.value
+
+  return(par.scale)
+}
