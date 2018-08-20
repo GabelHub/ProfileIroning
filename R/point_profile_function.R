@@ -238,14 +238,3 @@ point.profile <- function(no.fit,
 
   return(result)
 }
-
-
-smooth.profile(which.par = "beta",
-               random.borders = cbind(c(1e-2,1e-4,1e0,5,1,1000),
-                                      c(1e+0,1e-2,1e+1,20,10,1500)),
-               fit.fn = ls2,
-               homedir = getwd(),
-               future.off = TRUE,
-               optim.runs = 3,
-               lowbound.i=lowbound,
-               highbound.i=highbound)
