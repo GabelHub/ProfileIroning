@@ -169,7 +169,6 @@ create.profile <- function(which.par, par.names, range, fit.fn, bind.old = FALSE
     table.x <- get.profile(which.par = names(par.names)[index[i]],
                            range = get.range,
                            homedir = homedir,
-                           wait = TRUE,
                            delete.old = delete.old)
     if(i == 1){
       overall.min <- min(table.x[,1])
