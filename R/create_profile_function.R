@@ -151,10 +151,10 @@ create.profile <- function(which.par, par.names, range, fit.fn, bind.old = FALSE
   for(i in 1:length(index)){
     if(bind.old == TRUE){
       extra.range <- c()
-      all.files <- list.files(paste0(homedir, "/Profile-Results/Fits"), pattern = which.par[i])
+      all.files <- list.files(paste0(homedir, "/Profile-Results/Fits"), pattern = names(par.names)[index[i]])
       if(length(all.files) >= 1){
         for(j in 1:length(all.files)){
-          val <- gsub(pattern = paste0(which.par[i], "_"), replacement = "", all.files[j])
+          val <- gsub(pattern = paste0(names(par.names)[index[i]], "_"), replacement = "", all.files[j])
           val <- gsub(pattern = paste0(".rds"), replacement = "", val)
           extra.range <- c(extra.range, as.numeric(val))
         }
