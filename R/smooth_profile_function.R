@@ -139,8 +139,6 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
         cliff.min <- threshold
       }
       #run until refitting of cliffs does not yield any improvement and no more spikes are present
-      ###MAIN LOOP####
-      ###SMOOTHING####
       #find steep cliffs and specify the type: 1 - cliff to the left, 2- cliff to the right, 12 - spiked value
       sel.steepcliff <- rep(0, length(range))
       #cycle through generated profile
@@ -170,8 +168,6 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
       steepcliff <- which(sel.steepcliff > 0)
       which.improved[[s]][-steepcliff] <- 0
 
-      save.steepcliff[[s]] <- steepcliff
-      which.improved[[s]][-steepcliff] <- 0
       for(k in steepcliff){
         if(k == 1){
           slct <- c(1,2)
@@ -185,6 +181,10 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
           steepcliff <- steepcliff[-which(steepcliff == k)]
         }
       }
+
+      save.steepcliff[[s]] <- steepcliff
+      which.improved[[s]][-steepcliff] <- 0
+
       print(paste0("Found ", length(steepcliff)," unsuitable value(s) in the profile (spike or difference to neighbouring points larger than ", format(cliff.min, digits = 2), ")."))
       print(data[steepcliff, col.pl + 1])
 
@@ -241,63 +241,75 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
             }
           }else{
             if(cliff == 12){
-              future.list <- c(future.list, list(future::future({point.profile(no.fit = fixed.par,
-                                                                              parms = params.test,
-                                                                              fit.fn = fit.fn,
-                                                                              homedir = homedir,
-                                                                              optim.runs = optim.runs,
-                                                                              random.borders = random.borders,
-                                                                              con.tol = con.tol,
-                                                                              control.optim = control.optim,
-                                                                              parscale.parameters = parscale.pars,
-                                                                              save.rel.diff = save.rel.diff,
-                                                                              ...)
-                                                                point.profile(no.fit = fixed.par,
-                                                                              parms = params.test2,
-                                                                              fit.fn = fit.fn,
-                                                                              homedir = homedir,
-                                                                              optim.runs = optim.runs,
-                                                                              random.borders = random.borders,
-                                                                              con.tol = con.tol,
-                                                                              control.optim = control.optim,
-                                                                              parscale.parameters = parscale.pars,
-                                                                              save.rel.diff = save.rel.diff,
-                                                                              ...)},
-                                                                label = paste0(which.par[s], "_", fixed.par[1]),
-                                                                ...)))
+              future.list <- c(future.list,
+                               list(future::future(
+                                 {point.profile(no.fit = fixed.par,
+                                                parms = params.test,
+                                                fit.fn = fit.fn,
+                                                homedir = homedir,
+                                                optim.runs = optim.runs,
+                                                random.borders = random.borders,
+                                                con.tol = con.tol,
+                                                control.optim = control.optim,
+                                                parscale.parameters = parscale.pars,
+                                                save.rel.diff = save.rel.diff,
+                                                ...)
+                                   point.profile(no.fit = fixed.par,
+                                                 parms = params.test2,
+                                                 fit.fn = fit.fn,
+                                                 homedir = homedir,
+                                                 optim.runs = optim.runs,
+                                                 random.borders = random.borders,
+                                                 con.tol = con.tol,
+                                                 control.optim = control.optim,
+                                                 parscale.parameters = parscale.pars,
+                                                 save.rel.diff = save.rel.diff,
+                                                 ...)},
+                                 label = paste0(which.par[s], "_", fixed.par[1]),
+                                 ...)))
             }else{
-              future.list <- c(future.list, list(future::future(point.profile(no.fit = fixed.par,
-                                                                              parms = params.test,
-                                                                              fit.fn = fit.fn,
-                                                                              homedir = homedir,
-                                                                              optim.runs = optim.runs,
-                                                                              random.borders = random.borders,
-                                                                              con.tol = con.tol,
-                                                                              control.optim = control.optim,
-                                                                              parscale.parameters = parscale.pars,
-                                                                              save.rel.diff = save.rel.diff,
-                                                                              ...),
-                                                                label = paste0(which.par[s], "_", fixed.par[1]),
-                                                                ...)))
+              future.list <- c(future.list,
+                               list(future::future(point.profile(no.fit = fixed.par,
+                                                                 parms = params.test,
+                                                                 fit.fn = fit.fn,
+                                                                 homedir = homedir,
+                                                                 optim.runs = optim.runs,
+                                                                 random.borders = random.borders,
+                                                                 con.tol = con.tol,
+                                                                 control.optim = control.optim,
+                                                                 parscale.parameters = parscale.pars,
+                                                                 save.rel.diff = save.rel.diff,
+                                                                 ...),
+                                                   label = paste0(which.par[s], "_", fixed.par[1]),
+                                                   ...)))
             }
           }
         }
       }
     }
 
-
-    #read in data
-    print.wait <- TRUE
-    for(wff in 1:length(future.list)){
-      while(!resolved(future.list[wff])){
-        if(print.wait){
-          print("Waiting until all futures are resolved ...")
-          print.wait <- FALSE
+    if(length(future.list) > 0){
+      #check if futures are done
+      for(wff in 1:length(future.list)){
+        print.wait <- TRUE
+        while(!resolved(future.list[[wff]])){
+          if(print.wait){
+            print(paste0("Waiting for future ", future.list[[wff]]$label, " ..."))
+            print.wait <- FALSE
+          }
+          Sys.sleep(5)
         }
-        Sys.sleep(5)
+      }
+
+      #check if all files exist
+      for(fex in 1:length(future.list)){
+        if(!file.exists(paste0(homedir, "/Profile-Results/Fits/", future.list[[wff]]$label, ".rds"))){
+          stop(paste0("Future is done but no output file was generated. Check log file of job ",future.list[[wff]]$label, " or use 'future.off = TRUE' to debug."))
+        }
       }
     }
 
+    #read in data####
     for(k in which(improvement != 0)){
       #define improvement variable
       improvement[k] <- 0

@@ -4,8 +4,8 @@
 \alias{get.profile}
 \title{Create Profile Likelihood Data Frame}
 \usage{
-get.profile(which.par, range, homedir = getwd(), wait = FALSE,
-  delete.old = FALSE, save.it = TRUE)
+get.profile(which.par, range, homedir = getwd(), delete.old = FALSE,
+  save.it = TRUE)
 }
 \arguments{
 \item{which.par}{The names of the parameter that the profile should be returned for.}
@@ -13,8 +13,6 @@ get.profile(which.par, range, homedir = getwd(), wait = FALSE,
 \item{range}{A numeric vector determining the values for which the profile should be calculated. Alternatively, setting it to "get.all" retrieves all available profile values and binds them together.}
 
 \item{homedir}{The directory in which the folder \code{"Profile-Results"} is found. Default to \code{\link{getwd}}().}
-
-\item{wait}{Logical. If true, \code{get.profile} will wait if a certain profile value has not been fitted yet (i.e. the corresponding status file is not equal to "done").}
 
 \item{delete.old}{Logical. If TRUE, the individual point-wise fits created by \code{\link{point.profile}} will be deleted after using them. Default to FALSE.}
 

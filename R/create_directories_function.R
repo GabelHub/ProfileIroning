@@ -7,7 +7,6 @@
 #'   \item{Figures}{Contains plots of the profiles.}
 #'   \item{Fits}{Contains the fitted parameter values of each of the tested models.}
 #'   \item{LogFiles}{Contains the log files of the individual model fitting runs.}
-#'   \item{Status}{Contains the status files of the individual model fitting runs.}
 #'   \item{Tables}{Contains the profile likelihood data frames.}
 #'   }
 #'
@@ -23,6 +22,5 @@ create.directories <- function(homedir) {
   dir.create(paste0(dir, "/Figures"), showWarnings = F)
   dir.create(paste0(dir, "/Fits"), showWarnings = F)
   dir.create(paste0(dir, "/LogFiles"), showWarnings = F)
-  dir.create(paste0(dir, "/Status"), showWarnings = F)
   dir.create(paste0(dir, "/Tables"), showWarnings = F)
 }

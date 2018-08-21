@@ -87,6 +87,7 @@ point.profile <- function(no.fit,
     }else{
       #get random initial conditions and test if they work
       works <- FALSE
+      tries <- 0
       while(works == FALSE){
         if(is.vector(random.borders)){
 
@@ -117,7 +118,8 @@ point.profile <- function(no.fit,
                                   max = random.max)
 
         }else if(is.function(random.borders)){
-          ran.par <- R.utils::doCall(random.borders, args = c(list(n = length(fit.vector)), list(...)))
+          ran.par <- R.utils::doCall(random.borders, args = c(list(n = length(parms)), list(...)))
+          ran.par <- ran.par[-which(names(parms) %in% names(no.fit))]
         }else{
           stop("random.borders must be a number, a vector, a matrix or a function!")
         }
@@ -127,6 +129,10 @@ point.profile <- function(no.fit,
                                          par.names = names(parms),
                                          fit.fn = fit.fn,
                                          ...))
+        tries <- tries + 1
+        if(tries > 100){
+          stop("Tried 100 times to sample valid starting conditions for optim, but failed. Please check if 'random.borders' is correctly defined.")
+        }
       }
       #print parameter sets for the log files
       print(ran.par)
