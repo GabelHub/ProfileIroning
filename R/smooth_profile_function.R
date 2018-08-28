@@ -186,10 +186,10 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
       which.improved[[s]][-steepcliff] <- 0
 
       print(paste0("Found ", length(steepcliff)," unsuitable value(s) in the profile (spike or difference to neighbouring points larger than ", format(cliff.min, digits = 2), ")."))
-      print(data[steepcliff, col.pl + 1])
-
-      #fit only if cliffs are present
       if(length(steepcliff) > 0){
+      print(data[steepcliff, col.pl + 1])
+      #fit only if cliffs are present
+
         #cycle through cliffs
         for(i in 1:length(steepcliff)){
           k <- steepcliff[i]
@@ -313,21 +313,23 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
     for(k in which(improvement != 0)){
       #define improvement variable
       improvement[k] <- 0
-      for(j in 1:length(save.steepcliff[[k]])){
-        res <- readRDS(paste0(homedir, "/Profile-Results/Fits/", which.par[k],"_", save.data[[k]][save.steepcliff[[k]][j], save.col.pl[[k]] + 1], ".rds"))
-        if(res[1] < save.data[[k]][save.steepcliff[[k]][j], 1]){
-          save.data[[k]][save.steepcliff[[k]][j], ] <- res
-          improvement[k] <- improvement[k] + 1
-          if(save.steepcliff[[k]][j] == 1){
-            slct <- c(1,2)
-          }else if(save.steepcliff[[k]][j] == nrow(save.data[[k]])){
-            slct <- c(save.steepcliff[[k]][j]-1, save.steepcliff[[k]][j])
+      if(length(save.steepcliff[[k]]) > 1){
+        for(j in 1:length(save.steepcliff[[k]])){
+          res <- readRDS(paste0(homedir, "/Profile-Results/Fits/", which.par[k],"_", save.data[[k]][save.steepcliff[[k]][j], save.col.pl[[k]] + 1], ".rds"))
+          if(res[1] < save.data[[k]][save.steepcliff[[k]][j], 1]){
+            save.data[[k]][save.steepcliff[[k]][j], ] <- res
+            improvement[k] <- improvement[k] + 1
+            if(save.steepcliff[[k]][j] == 1){
+              slct <- c(1,2)
+            }else if(save.steepcliff[[k]][j] == nrow(save.data[[k]])){
+              slct <- c(save.steepcliff[[k]][j]-1, save.steepcliff[[k]][j])
+            }else{
+              slct <- c(save.steepcliff[[k]][j]-1, save.steepcliff[[k]][j], save.steepcliff[[k]][j] +1)
+            }
+            which.improved[[k]][slct] <- 1
           }else{
-            slct <- c(save.steepcliff[[k]][j]-1, save.steepcliff[[k]][j], save.steepcliff[[k]][j] +1)
+            which.improved[[k]][save.steepcliff[[k]][j]] <- 0
           }
-          which.improved[[k]][slct] <- 1
-        }else{
-          which.improved[[k]][save.steepcliff[[k]][j]] <- 0
         }
       }
 

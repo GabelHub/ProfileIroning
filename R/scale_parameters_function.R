@@ -1,4 +1,4 @@
-#' A Fix for Parscale in Optim
+#' Control Function for Parscale in Optim
 #'
 #' This function is designed to use the built-in option \code{parscale} in \code{\link{optim}} with absolute scaling values.
 #'
@@ -25,15 +25,12 @@
 parscale.parameters <- function(par, scale, fix = 1){
   #check if length of scale is equal to par
   if(length(par) !=  length(scale)){
-    print("Incorrect length")
-    return(NA)
-  }
-  #if one of the changes is smaller than 10% of its original value the fixed value might be neglected
-  if(sum( (scale - 0.1*par)<0 ) > 0){
-    print("Warning: One of the changes is smaller than 10% of the original value")
-    stop()
+    stop("parscale.parameters has parameter and scaling vectors of different sizes.")
   }
 
+  if(any(scale == 0)){
+    scale[scale == 0] <- 1
+  }
   #parscale fixes the larged par/parscale value to deviate only 10 percent, others can then vary
   #get fixed and maximal value
   fix.value <- par[fix]
@@ -47,12 +44,9 @@ parscale.parameters <- function(par, scale, fix = 1){
     max.value <- 1
   }
 
-  #create storage vector
-  par.scale <- rep(0, length(par))
-
   #fill in scaling vector
   par.scale <- scale/(0.1 * fix.value * max.value)
   par.scale[fix] <- 1 / max.value
 
-  return(par.scale)
+  return(abs(par.scale))
 }
