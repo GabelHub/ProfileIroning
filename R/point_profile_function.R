@@ -41,8 +41,6 @@ point.profile <- function(no.fit,
                           save.rel.diff = 0,
                           ...) {
 
-  #sink output to a log file
-  sink(paste0(homedir, "/Profile-Results/LogFiles/Log", paste0(names(no.fit[1]),"_", no.fit[1]), ".txt"), split = TRUE)
 
   #delete status file if present
   if(file.exists(paste0(homedir, "/Profile-Results/Status/status", paste0(names(no.fit[1]),"_", no.fit[1]), ".rds"))){
@@ -229,7 +227,7 @@ point.profile <- function(no.fit,
 
   }
   cat("\nFitting done.\n")
-  sink()
+
 
   return(result)
 }

@@ -292,7 +292,7 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
       #check if futures are done
       for(wff in 1:length(future.list)){
         print.wait <- TRUE
-        while(!resolved(future.list[[wff]])){
+        while(!future::resolved(future.list[[wff]])){
           if(print.wait){
             print(paste0("Waiting for future ", future.list[[wff]]$label, " ..."))
             print.wait <- FALSE
@@ -304,7 +304,14 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
       #check if all files exist
       for(fex in 1:length(future.list)){
         if(!file.exists(paste0(homedir, "/Profile-Results/Fits/", future.list[[wff]]$label, ".rds"))){
-          stop(paste0("Future is done but no output file was generated. Check log file of job ",future.list[[wff]]$label, " or use 'future.off = TRUE' to debug."))
+          #print error message
+          if(class(try(future::value(future.list[[wff]]))) == "try-error"){
+            try(future::value(future.list[[wff]]))
+          }
+
+          stop(paste0("Future is done but no output file was generated. The corresponding error message of job ",
+                      future.list[[wff]]$label,
+                      " is shown above. If no output is shown, use 'future.off = TRUE' to debug."))
         }
       }
     }
