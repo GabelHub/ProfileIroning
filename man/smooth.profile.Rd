@@ -6,8 +6,9 @@
 \usage{
 smooth.profile(which.par, fit.fn, threshold = "auto", spike.min = 0.01,
   do.not.fit = NULL, homedir = getwd(), optim.runs = 5,
-  random.borders = 1, con.tol = 0.1, control.optim = list(maxit = 1000),
-  parscale.pars = TRUE, save.rel.diff = 0, future.off = F, ...)
+  random.borders = 1, con.tol = 0.1, control.optim = list(maxit =
+  1000), parscale.pars = TRUE, save.rel.diff = 0, future.off = F,
+  ...)
 }
 \arguments{
 \item{which.par}{A vector containing the names of all parameters for which the respective profiles should be smoothed. Alternatively, supplying "all.par" smooths all existing profiles.}
@@ -85,7 +86,6 @@ smooth.profile(which.par = "p1",
                fit.fn = cost_function,
                homedir = getwd(),
                optim.runs = 1,
-               future.off = TRUE,
                x.vals = x.values,
                y.vals = y.values,
                sd.y = sd.y.values)

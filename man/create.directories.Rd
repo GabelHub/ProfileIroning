@@ -16,11 +16,10 @@ Creates storage directories.
 Creates the directories, in which the results are going to be stored.
 }
 \details{
-All files will be stored in the main folder "FAMoS-Results". It contains the following subdirectories:
+All files will be stored in the main folder "Profile-Results". It contains the following subdirectories:
 \describe{
   \item{Figures}{Contains plots of the profiles.}
   \item{Fits}{Contains the fitted parameter values of each of the tested models.}
-  \item{LogFiles}{Contains the log files of the individual model fitting runs.}
   \item{Tables}{Contains the profile likelihood data frames.}
   }
 }

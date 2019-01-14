@@ -60,7 +60,6 @@
 #'                fit.fn = cost_function,
 #'                homedir = getwd(),
 #'                optim.runs = 1,
-#'                future.off = TRUE,
 #'                x.vals = x.values,
 #'                y.vals = y.values,
 #'                sd.y = sd.y.values)
@@ -117,10 +116,10 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
 
   while(any(improvement != 0)){
     future.list <- list()
-    print(paste0("ITERATION ", iteration))
+    cat(paste0("\n\nITERATION ", iteration))
     for(s in which(improvement != 0)){
       #get parameter range
-      print(paste0("Analysing profile table for parameter ", which.par[s]))
+      cat(paste0("\nAnalysing profile table for parameter ", which.par[s]))
       data <- save.data[[s]]
       col.pl <- which(names(data)[2:ncol(data)] == which.par[s])
       range <- data[, col.pl + 1]
@@ -185,9 +184,9 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
       save.steepcliff[[s]] <- steepcliff
       which.improved[[s]][-steepcliff] <- 0
 
-      print(paste0("Found ", length(steepcliff)," unsuitable value(s) in the profile (spike or difference to neighbouring points larger than ", format(cliff.min, digits = 2), ")."))
+      cat(paste0("\nFound the following ", length(steepcliff)," unsuitable value(s) in the profile (spike or difference to neighbouring points larger than ", format(cliff.min, digits = 2), "):\n"))
       if(length(steepcliff) > 0){
-      print(data[steepcliff, col.pl + 1])
+      cat(data[steepcliff, col.pl + 1])
       #fit only if cliffs are present
 
         #cycle through cliffs
@@ -294,7 +293,7 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
         print.wait <- TRUE
         while(!future::resolved(future.list[[wff]])){
           if(print.wait){
-            print(paste0("Waiting for future ", future.list[[wff]]$label, " ..."))
+            cat(paste0("\nWaiting for future ", future.list[[wff]]$label, " ..."))
             print.wait <- FALSE
           }
           Sys.sleep(5)
@@ -341,13 +340,27 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
       }
 
       if(improvement[k] > 0){
-        print(paste0("Improved ", improvement[k], " out of ", length(save.steepcliff[[k]]), " profile values for parameter ",which.par[k],"."))
+        cat(paste0("\nImproved ",
+                     improvement[k],
+                     " out of ",
+                     length(save.steepcliff[[k]]),
+                     " profile values for parameter ",
+                     which.par[k],"."))
         saveRDS(save.data[[k]], paste0(homedir, "/Profile-Results/Tables/", which.par[k], ".rds"))
       }else{
-        print(paste0("Improved ", improvement[k], " out of ", length(save.steepcliff[[k]]), " profile values for parameter ",which.par[k],". Smoothing terminated for this parameter."))
+        cat(paste0("\nImproved ",
+                     improvement[k],
+                     " out of ",
+                     length(save.steepcliff[[k]]),
+                     " profile values for parameter ",
+                     which.par[k],
+                     ". Smoothing terminated for this parameter."))
       }
 
     }
+
+    old.par <- graphics::par("mfrow")
+    on.exit(graphics::par(mfrow = old.par))
 
     graphics::par(mfrow = c(nrows, ncols))
     for(s in 1:length(which.par)){
@@ -380,8 +393,8 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
 
     iteration <- iteration + 1
 
-    if(any(improvement > 0) == FALSE){
-      print("No further improvement in any profiles was achieved. Terminating.")
+    if(any(improvement > 0) == FALSE && length(which.par) > 1){
+      cat("\nNo further improvement in any profiles was achieved. Terminating.")
     }
   }
 }

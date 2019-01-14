@@ -6,9 +6,9 @@
 \usage{
 create.profile(which.par, par.names, range, fit.fn, bind.old = FALSE,
   delete.old = FALSE, do.not.fit = NULL, homedir = getwd(),
-  optim.runs = 5, random.borders = 1, refit = FALSE, save.rel.diff = 0,
-  con.tol = 0.1, control.optim = list(maxit = 1000), parscale.pars = TRUE,
-  future.off = FALSE, ...)
+  optim.runs = 5, random.borders = 1, refit = FALSE,
+  save.rel.diff = 0, con.tol = 0.1, control.optim = list(maxit =
+  1000), parscale.pars = TRUE, future.off = FALSE, ...)
 }
 \arguments{
 \item{which.par}{Name of the parameter that a profile should be obtained for. If multiple profiles are supposed to be calculated, a vector can be passed along as well. Alternatively, supplying "all.par" calculates the profiles for all available parameters.}

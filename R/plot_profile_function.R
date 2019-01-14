@@ -48,6 +48,9 @@
 #' plotting.profile("all.par")
 plotting.profile <- function(which.par, homedir = getwd(), conf.level = 0.95, ...){
 
+  old.par <- graphics::par("mfrow")
+  on.exit(graphics::par(mfrow = old.par))
+
   if(which.par[1] == "all.par"){
     filenames <- list.files(paste0(homedir,"/Profile-Results/Tables"), pattern="*.rds", full.names=FALSE)
     which.par <- as.vector(gsub(".rds", "", filenames))

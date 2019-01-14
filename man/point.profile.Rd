@@ -5,8 +5,8 @@
 \title{Fit a Single Profile Point}
 \usage{
 point.profile(no.fit, parms, fit.fn, homedir = getwd(), optim.runs = 5,
-  random.borders = 1, con.tol = 0.1, control.optim = list(maxit = 1000),
-  parscale.pars = TRUE, save.rel.diff = 0, ...)
+  random.borders = 1, con.tol = 0.1, control.optim = list(maxit =
+  1000), parscale.pars = TRUE, save.rel.diff = 0, ...)
 }
 \arguments{
 \item{no.fit}{A named vector containing the values of all parameters that are not to be fitted.}

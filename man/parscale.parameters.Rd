@@ -2,7 +2,7 @@
 % Please edit documentation in R/scale_parameters_function.R
 \name{parscale.parameters}
 \alias{parscale.parameters}
-\title{A Fix for Parscale in Optim}
+\title{Control Function for Parscale in Optim}
 \usage{
 parscale.parameters(par, scale, fix = 1)
 }

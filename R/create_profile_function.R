@@ -197,7 +197,8 @@ create.profile <- function(which.par, par.names, range, fit.fn, bind.old = FALSE
     names(all.res) <- names(par.names)[index]
   }
 
-
+  old.par <- graphics::par("mfrow")
+  on.exit(graphics::par(mfrow = old.par))
 
   graphics::par(mfrow = c(nrows, ncols))
 
