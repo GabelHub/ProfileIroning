@@ -76,6 +76,9 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
   }
 
   #set graphical parameters
+  old.par <- graphics::par("mfrow")
+  on.exit(graphics::par(mfrow = old.par))
+
   nrows = round(sqrt(length(which.par)))
   ncols = ifelse(length(which.par) == 1, 1, ceiling(sqrt(length(which.par))))
   graphics::par(mfrow = c(nrows, ncols))
@@ -358,9 +361,6 @@ smooth.profile <- function(which.par, fit.fn, threshold = "auto", spike.min = 0.
       }
 
     }
-
-    old.par <- graphics::par("mfrow")
-    on.exit(graphics::par(mfrow = old.par))
 
     graphics::par(mfrow = c(nrows, ncols))
     for(s in 1:length(which.par)){
